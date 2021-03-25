@@ -16,12 +16,12 @@ typedef std::shared_ptr<BasicBlock> spBasicBlock;
 
 void test1()
 {
+    //测试BPSK调制的性能，信噪比为3dB，共100k字节(800kbit)的数据
     float snr = 5;
     float En = 1.0 / pow(10.0, snr / 10.0);
 
     TopFlow topflow;
 
-    //测试BPSK调制的性能，信噪比为3dB，共100k字节(800kbit)的数据
     spBasicBlock msg = std::make_shared<MsgGenerator>(100000);
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>();
     spBasicBlock bpsk_mod = std::make_shared<BPSK>();
