@@ -14,16 +14,11 @@ add_executable(SimPlatform
 
         Blocks/NullSource.cpp
         Blocks/NullSink.cpp
-        Blocks/Proc.cpp
-        Blocks/mi_channel.cpp
-        Blocks/node_tag.cpp
         Blocks/MsgGenerator.cpp
         Blocks/ConvertByteBit.cpp
         Blocks/BPSK.cpp
         Blocks/BPSKDemod.cpp
         Blocks/AWGNChannel.cpp
         Blocks/BER.cpp
-
-        Sources/fxpt.cc
 
         )
