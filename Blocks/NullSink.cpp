@@ -52,9 +52,9 @@ int NullSink::work(int noutput, std::vector<const void *> &input, std::vector<vo
 
     for (int i=0; i<noutput; ++i)
     {
-
+        std::cout << (int)in[i] << " ";
     }
-
+    std::cout << std::endl;
 
     return noutput;
 }

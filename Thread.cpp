@@ -426,7 +426,7 @@ bool Thread::DownBlocksDone(spBasicBlock blk)
         std::vector<spBufferReader> readers = blk->GetOutbuffer(i)->GetBufreader();
         for (spBufferReader reader : readers)
         {
-            if (!(reader->GetBlock().lock()->Done()))
+            if (reader->GetBlock().lock()->Done())
                 return true;
         }
     }

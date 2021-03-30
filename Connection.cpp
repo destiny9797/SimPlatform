@@ -193,7 +193,7 @@ void Connection::CheckConn()
         //检查是否flow中每个模块的输入端口都已经连接
         for (const spBasicBlock& inblock : _inblocklist)
         {
-            if (!inblock->isSinkInterface())
+            if (!inblock->isSourceInterface())
             {
                 int nport = inblock->GetInputPortNum();
                 for (int port=0; port<nport; ++port)

@@ -19,7 +19,7 @@ void test1()
 {
     TopFlow topflow;
 
-    spBasicBlock msg = std::make_shared<MsgGenerator>(100000);
+    spBasicBlock msg = std::make_shared<MsgGenerator>(200000);
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>();
     spBasicBlock bpsk_mod = std::make_shared<BPSK>();
 

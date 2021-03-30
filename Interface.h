@@ -7,6 +7,7 @@
 
 #include "BasicBlock.h"
 #include <string>
+#include <iostream>
 
 class Interface : public BasicBlock
 {
