@@ -47,6 +47,8 @@ public:
 
     void AddReader(spBufferReader br){ _readerlist.emplace_back(br); }
 
+    void SetBasebuffer(char* base){ _basebuffer = base; }
+
 
 
 private:

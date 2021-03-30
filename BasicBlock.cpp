@@ -15,6 +15,8 @@ BasicBlock::BasicBlock(int ninput, int sizeofinitem, int noutput, int sizeofouti
       _interpolation(1),
       _outbuflist(noutput),
       _inbuflist(ninput),
+      _issinkinterface(false),
+      _issourceinterfacce(false),
       _thread(nullptr)
 {
 

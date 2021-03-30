@@ -17,14 +17,17 @@ Buffer::Buffer(wpBasicBlock block, int nitems, int sizeofitem)
       _sizeofitem(sizeofitem),
       _bufsize(0),
       _writeind(0),
+      _basebuffer(nullptr),
       _readerlist()
 {
-    AllocateBuffer(nitems,sizeofitem);
+    if (!_block.lock()->isSinkInterface())
+        AllocateBuffer(nitems,sizeofitem);
 }
 
 Buffer::~Buffer()
 {
 //    std::cout << "~Buffer()" << std::endl;
+    munmap(_basebuffer, 2*_bufsize*_sizeofitem);
 }
 
 void Buffer::AllocateBuffer(int nitems, int sizeofitem)
@@ -99,6 +102,7 @@ void Buffer::AllocateBuffer(int nitems, int sizeofitem)
         close(fd);
         throw std::runtime_error("Buffer[AllocateBuffer]: ftruncate 2 failed.");
     }
+    close(fd);
 
     _basebuffer = (char*)firstcopy;
 }

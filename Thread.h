@@ -14,6 +14,8 @@
 class BasicBlock;
 class Buffer;
 class BufferReader;
+class SinkInterface;
+class SourceInterface;
 
 class Thread
 {
@@ -23,6 +25,9 @@ public:
     typedef std::shared_ptr<BasicBlock> spBasicBlock;
     typedef std::shared_ptr<Buffer> spBuffer;
     typedef std::shared_ptr<BufferReader> spBufferReader;
+
+    typedef std::shared_ptr<SinkInterface> spSink;
+    typedef std::shared_ptr<SourceInterface> spSource;
 
     typedef std::function<int(int, std::vector<const void*>&, std::vector<void*>&)> Callback_BlockRun;
 //    typedef std::function<void(spBasicBlock, bool)> Callback_Notify;
@@ -72,9 +77,15 @@ private:
 
     bool UpBlocksDone(spBasicBlock blk);
 
+    bool DownBlocksDone(spBasicBlock blk);
+
     void Scheduler();
 
     State Work();
+
+    State SinkWork(spSink blk);
+
+    State SourceWork(spSource blk);
 
     wpBasicBlock _block;
 

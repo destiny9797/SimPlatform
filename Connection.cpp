@@ -3,6 +3,7 @@
 //
 
 #include "Connection.h"
+#include "Interface.h"
 #include <iostream>
 
 #define NITEMS ( 8 * (1L<<10) ) //8M ，如果sizeofitem是4Bytes，则总共约32M一个文件
@@ -176,12 +177,15 @@ void Connection::CheckConn()
         //检查是否flow中每个模块的输出端口都已经连接到下一个block，否则不会为它分配buffer
         for (const spBasicBlock& outblock : _outblocklist)
         {
-            int nport = outblock->GetInputPortNum();
-            for (int port=0; port<nport; ++port)
+            if (!outblock->isSinkInterface())
             {
-                if (GetDownStram(BlkPort(outblock,port)).empty())
+                int nport = outblock->GetInputPortNum();
+                for (int port=0; port<nport; ++port)
                 {
-                    throw std::runtime_error("Connection[CheckConn]: an output port has no destination.");
+                    if (GetDownStram(BlkPort(outblock,port)).empty())
+                    {
+                        throw std::runtime_error("Connection[CheckConn]: an output port has no destination.");
+                    }
                 }
             }
         }
@@ -189,12 +193,15 @@ void Connection::CheckConn()
         //检查是否flow中每个模块的输入端口都已经连接
         for (const spBasicBlock& inblock : _inblocklist)
         {
-            int nport = inblock->GetInputPortNum();
-            for (int port=0; port<nport; ++port)
+            if (!inblock->isSinkInterface())
             {
-                if (GetUpStream(BlkPort(inblock,port)).GetBlock() == nullptr)
+                int nport = inblock->GetInputPortNum();
+                for (int port=0; port<nport; ++port)
                 {
-                    throw std::runtime_error("Connection[CheckConn]: an input port has no source.");
+                    if (GetUpStream(BlkPort(inblock,port)).GetBlock() == nullptr)
+                    {
+                        throw std::runtime_error("Connection[CheckConn]: an input port has no source.");
+                    }
                 }
             }
         }
@@ -213,11 +220,21 @@ void Connection::SetupConn()
 //    }
     for (const spBasicBlock& block: _outblocklist)
     {
-        int sizeofitem = block->GetOutputSizeofitem();
-        for (int i=0; i<block->GetOutputPortNum(); ++i)
+        if (!block->isSinkInterface())
         {
-            spBuffer buffer = std::make_shared<Buffer>(block, NITEMS, sizeofitem);
-            block->SetOutbuffer(i, buffer);
+            int sizeofitem = block->GetOutputSizeofitem();
+            for (int i=0; i<block->GetOutputPortNum(); ++i)
+            {
+                spBuffer buffer = std::make_shared<Buffer>(block, NITEMS, sizeofitem);
+                block->SetOutbuffer(i, buffer);
+            }
+        }
+        else{
+//            std::shared_ptr<SinkInterface> sink = std::dynamic_pointer_cast<SinkInterface,BasicBlock>(block);
+//            spBuffer buffer = std::make_shared<Buffer>(block, NITEMS, sink->GetOutputSizeofitem());
+//            buffer->SetBasebuffer(sink->GetBase());
+//            block->SetOutbuffer(0,buffer);
+//            //write_index read_index 怎么办呢？
         }
     }
 
@@ -225,11 +242,14 @@ void Connection::SetupConn()
     for (Pair& p : _connlist)
     {
         BlkPort& inbp = p.second;
-        const BlkPort& upbp = GetUpStream(inbp);
-        spBuffer buffer = upbp.GetBlock()->GetOutbuffer(upbp.GetPort());
-        spBufferReader buffer_reader = std::make_shared<BufferReader>(inbp.GetBlock(), buffer);
-        buffer->AddReader(buffer_reader);
-        inbp.GetBlock()->SetInbuffer(inbp.GetPort(),buffer_reader);
+        if (!inbp.GetBlock()->isSourceInterface())
+        {
+            const BlkPort& upbp = GetUpStream(inbp);
+            spBuffer buffer = upbp.GetBlock()->GetOutbuffer(upbp.GetPort());
+            spBufferReader buffer_reader = std::make_shared<BufferReader>(inbp.GetBlock(), buffer);
+            buffer->AddReader(buffer_reader);
+            inbp.GetBlock()->SetInbuffer(inbp.GetPort(),buffer_reader);
+        }
     }
 
 }

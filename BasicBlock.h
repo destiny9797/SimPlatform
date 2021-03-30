@@ -11,55 +11,71 @@
 #include <memory>
 
 
-class BasicBlock : public std::enable_shared_from_this<BasicBlock>
-{
+class BasicBlock : public std::enable_shared_from_this<BasicBlock> {
 public:
     typedef std::shared_ptr<Buffer> spBuffer;
     typedef std::shared_ptr<BufferReader> spBufferReader;
     typedef std::shared_ptr<Thread> spThread;
+
     virtual ~BasicBlock();
 
-    int GetInputPortNum(){ return _ninput; }
-    int GetOutputPortNum(){ return _noutput; }
+    int GetInputPortNum() { return _ninput; }
 
-    int GetInputSizeofitem(){ return _sizeofinitem; }
-    int GetOutputSizeofitem(){ return _sizeofoutitem; }
+    int GetOutputPortNum() { return _noutput; }
 
-    void SetNOutbuf(int n){ _outbuflist.resize(n); }
-    void SetNInbuf(int n){ _inbuflist.resize(n); }
+    int GetInputSizeofitem() { return _sizeofinitem; }
+
+    int GetOutputSizeofitem() { return _sizeofoutitem; }
+
+    void SetNOutbuf(int n) { _outbuflist.resize(n); }
+
+    void SetNInbuf(int n) { _inbuflist.resize(n); }
+
     void SetOutbuffer(int port, spBuffer buffer);
+
     void SetInbuffer(int port, spBufferReader bufferreader);
 
-    void SetHistory(int n){ _history = n; }
-    int GetHistory(){ return _history; }
+    void SetHistory(int n) { _history = n; }
 
-    void SetDecimation(int n){ _decimation = n; }
-    int GetDecimation(){ return _decimation; }
+    int GetHistory() { return _history; }
 
-    void SetInterpolation(int n){ _interpolation = n; }
-    int GetInterpolation(){ return _interpolation; }
+    void SetDecimation(int n) { _decimation = n; }
 
-    spBuffer GetOutbuffer(int port){ return _outbuflist[port]; }
-    spBufferReader GetInbuffer(int port){ return _inbuflist[port]; }
+    int GetDecimation() { return _decimation; }
 
-    spThread GetThread(){ return _thread; }
+    void SetInterpolation(int n) { _interpolation = n; }
+
+    int GetInterpolation() { return _interpolation; }
+
+    spBuffer GetOutbuffer(int port) { return _outbuflist[port]; }
+
+    spBufferReader GetInbuffer(int port) { return _inbuflist[port]; }
+
+    spThread GetThread() { return _thread; }
 
     //为thread注册回调函数
     void ThreadRegister();
 
-    inline void SetInchanged()
-    {
+    void SetInchanged() {
         _thread->SetInchanged();
     }
 
-    inline void SetOutchanged()
-    {
+    void SetOutchanged() {
         _thread->SetOutchanged();
     }
 
-    inline bool Done()
-    {
+    bool Done() {
         return _thread->_done;
+    }
+
+    bool isSinkInterface()
+    {
+        return _issinkinterface;
+    }
+
+    bool isSourceInterface()
+    {
+        return _issourceinterfacce;
     }
 
     virtual void forecast(int noutput, int& ninput_required) = 0;
@@ -68,6 +84,9 @@ protected:
     BasicBlock(int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
 
     virtual int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) = 0;
+
+    bool _issinkinterface;
+    bool _issourceinterfacce;
 
 private:
     int _ninput;
