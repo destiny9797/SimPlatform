@@ -24,6 +24,8 @@ public:
 
     void Wait();
 
+    void Stop();
+
     //连接block的收发关系
     void Connect(spBasicBlock blk1, int port1, spBasicBlock blk2, int port2);
 

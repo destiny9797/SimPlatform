@@ -52,6 +52,11 @@ void Thread::Wait()
         _thr->join();
 }
 
+void Thread::Stop()
+{
+    _done = true;
+}
+
 void Thread::CreateThread()
 {
     _thr = std::make_unique<std::thread>(std::bind(&Thread::Scheduler, this));
@@ -70,7 +75,7 @@ void Thread::Scheduler()
         if (spSinkblk == nullptr)
             throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to Sink failed.");
 
-        while (1)
+        while (!_done)
         {
             ClearChanged();
             state = SinkWork(spSinkblk);
@@ -108,7 +113,7 @@ void Thread::Scheduler()
         if (spSourceblk == nullptr)
             throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to Source failed.");
 
-        while (1)
+        while (!_done)
         {
             ClearChanged();
             state = SourceWork(spSourceblk);
@@ -140,7 +145,7 @@ void Thread::Scheduler()
     }
     else
     {
-        while (1)
+        while (!_done)
         {
             //每个线程只会清零自己的条件变量，但是会设置邻居的条件变量为true，每个线程只需监控自己的条件变量
             ClearChanged();

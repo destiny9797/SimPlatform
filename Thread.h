@@ -68,6 +68,8 @@ public:
 
     void Wait();
 
+    void Stop();
+
     bool _done;
 
 private:

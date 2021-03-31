@@ -38,3 +38,11 @@ void ThreadPool::Wait()
         thr->Wait();
     }
 }
+
+void ThreadPool::Stop()
+{
+    for (spThread& thr : _threadlist)
+    {
+        thr->Stop();
+    }
+}

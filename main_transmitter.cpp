@@ -15,11 +15,18 @@
 
 typedef std::shared_ptr<BasicBlock> spBasicBlock;
 
-void test1()
-{
-    TopFlow topflow;
+TopFlow topflow;
 
-    spBasicBlock msg = std::make_shared<MsgGenerator>(200000);
+static void signal_handler(int sig_no)
+{
+    topflow.Stop();
+}
+
+int main(int argc, char* argv[])
+{
+    signal(SIGINT,signal_handler);
+
+    spBasicBlock msg = std::make_shared<MsgGenerator>(200000000);
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>();
     spBasicBlock bpsk_mod = std::make_shared<BPSK>();
 
@@ -33,12 +40,6 @@ void test1()
     topflow.Start();
     topflow.Run();
     topflow.Wait();
-
-}
-
-int main(int argc, char* argv[])
-{
-    test1();
 
     return 0;
 }

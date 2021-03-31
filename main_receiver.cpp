@@ -15,10 +15,17 @@
 
 typedef std::shared_ptr<BasicBlock> spBasicBlock;
 
+TopFlow topflow;
 
-void test1()
+static void signal_handler(int sig_no)
 {
-    TopFlow topflow;
+    topflow.Stop();
+}
+
+int main(int argc, char* argv[])
+{
+
+    signal(SIGINT,signal_handler);
 
     spBasicBlock sourceapi = std::make_shared<SourceInterface>("shared_memory", sizeof(std::complex<float>));
 
@@ -33,12 +40,6 @@ void test1()
     topflow.Start();
     topflow.Run();
     topflow.Wait();
-
-}
-
-int main(int argc, char* argv[])
-{
-    test1();
 
     return 0;
 }

@@ -82,3 +82,8 @@ void TopFlow::Wait()
 {
     _threadpool.Wait();
 }
+
+void TopFlow::Stop()
+{
+    _threadpool.Stop();
+}

@@ -24,6 +24,8 @@ public:
 
     void Wait();
 
+    void Stop();
+
     void AddThread(const spThread& thr);
 
 
