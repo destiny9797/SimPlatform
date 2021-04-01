@@ -10,7 +10,7 @@
 class BER : public BasicBlock
 {
 public:
-    BER();
+    BER(std::string name);
 
     ~BER() override;
 

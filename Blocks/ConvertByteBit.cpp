@@ -4,8 +4,8 @@
 
 #include "ConvertByteBit.h"
 
-ConvertByteBit::ConvertByteBit(bool byte_to_bit)
-    : BasicBlock(1,sizeof(uint8_t),1,sizeof(uint8_t)),
+ConvertByteBit::ConvertByteBit(std::string name, bool byte_to_bit)
+    : BasicBlock(name, 1,sizeof(uint8_t),1,sizeof(uint8_t)),
       _bytetobit(byte_to_bit)
 {
     if (byte_to_bit)

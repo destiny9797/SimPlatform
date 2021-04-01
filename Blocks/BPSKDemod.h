@@ -10,7 +10,7 @@
 class BPSKDemod : public BasicBlock
 {
 public:
-    BPSKDemod();
+    BPSKDemod(std::string name);
 
     ~BPSKDemod() override;
 

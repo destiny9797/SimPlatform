@@ -17,7 +17,22 @@ public:
     typedef std::shared_ptr<BufferReader> spBufferReader;
     typedef std::shared_ptr<Thread> spThread;
 
+    enum BlockType
+    {
+        NORMAL,
+        SINKAPI,
+        SOURCEAPI,
+        MSGGEN,
+        MSGPARSER
+    };
+
     virtual ~BasicBlock();
+
+    BlockType GetType(){ return _type; }
+
+    const std::string& GetName(){ return _name; }
+
+    void SetType(BlockType type){ _type = type; }
 
     int GetInputPortNum() { return _ninput; }
 
@@ -68,27 +83,19 @@ public:
         return _thread->_done;
     }
 
-    bool isSinkInterface()
-    {
-        return _issinkinterface;
-    }
-
-    bool isSourceInterface()
-    {
-        return _issourceinterfacce;
-    }
-
     virtual void forecast(int noutput, int& ninput_required) = 0;
 
 protected:
-    BasicBlock(int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
+    BasicBlock(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
 
     virtual int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) = 0;
 
-    bool _issinkinterface;
-    bool _issourceinterfacce;
 
 private:
+    BlockType _type;
+
+    std::string _name;
+
     int _ninput;
     int _noutput;
     int _sizeofinitem;

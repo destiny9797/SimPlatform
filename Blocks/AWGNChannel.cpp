@@ -7,8 +7,8 @@
 #include <random>
 #include <math.h>
 
-AWGNChannel::AWGNChannel(float noise_power)
-    : BasicBlock(1,sizeof(std::complex<float>),1,sizeof(std::complex<float>)),
+AWGNChannel::AWGNChannel(std::string name, float noise_power)
+    : BasicBlock(name, 1,sizeof(std::complex<float>),1,sizeof(std::complex<float>)),
       _En(noise_power),
       _generator(),
       _dist_real(0.0,std::sqrt(noise_power/2)),

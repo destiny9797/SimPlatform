@@ -10,7 +10,7 @@
 class MsgGenerator : public BasicBlock
 {
 public:
-    MsgGenerator(int nbytes);
+    MsgGenerator(std::string name, int nbytes);
 
     ~MsgGenerator() override;
 

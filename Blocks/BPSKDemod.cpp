@@ -5,8 +5,8 @@
 #include "BPSKDemod.h"
 #include <complex>
 
-BPSKDemod::BPSKDemod()
-    : BasicBlock(1,sizeof(std::complex<float>),1,sizeof(char))
+BPSKDemod::BPSKDemod(std::string name)
+    : BasicBlock(name, 1,sizeof(std::complex<float>),1,sizeof(char))
 {
 
 }

@@ -5,8 +5,8 @@
 #include "BPSK.h"
 #include <complex>
 
-BPSK::BPSK()
-    : BasicBlock(1,sizeof(char),1,sizeof(std::complex<float>))
+BPSK::BPSK(std::string name)
+    : BasicBlock(name, 1,sizeof(char),1,sizeof(std::complex<float>))
 {
 
 }

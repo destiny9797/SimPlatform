@@ -10,7 +10,7 @@
 class NullSink : public BasicBlock
 {
 public:
-    NullSink(int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
+    NullSink(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
     ~NullSink() override;
 
 private:

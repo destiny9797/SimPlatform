@@ -5,8 +5,9 @@
 #include "BasicBlock.h"
 #include <iostream>
 
-BasicBlock::BasicBlock(int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
-    : _ninput(ninput),
+BasicBlock::BasicBlock(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
+    : _name(name),
+      _ninput(ninput),
       _noutput(noutput),
       _sizeofinitem(sizeofinitem),
       _sizeofoutitem(sizeofoutitem),
@@ -15,8 +16,7 @@ BasicBlock::BasicBlock(int ninput, int sizeofinitem, int noutput, int sizeofouti
       _interpolation(1),
       _outbuflist(noutput),
       _inbuflist(ninput),
-      _issinkinterface(false),
-      _issourceinterfacce(false),
+      _type(NORMAL),
       _thread(nullptr)
 {
 

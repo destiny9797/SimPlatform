@@ -2,15 +2,19 @@
 // Created by zhujiaying on 2021/3/13.
 //
 
+#include "TopFlow.h"
 #include "Thread.h"
 #include "BasicBlock.h"
 #include "Interface.h"
+#include "MsgControl.h"
+#include "TranState.h"
 #include "Buffer.h"
 #include <iostream>
 #include <time.h>
 
 
 static std::mutex _smutex;
+
 
 Thread::Thread(wpBasicBlock block)
     : _block(block),
@@ -48,6 +52,9 @@ Thread::~Thread()
 void Thread::Wait()
 {
     assert(_thr != nullptr);
+    char name[20];
+    pthread_getname_np(_thr->native_handle(),name,20);
+    std::cout << "Waiting for thread: " <<  name << std::endl;
     if (_thr->joinable())
         _thr->join();
 }
@@ -69,16 +76,26 @@ void Thread::Scheduler()
     spBasicBlock blk = _block.lock();
     if (blk == nullptr)
         throw std::runtime_error("Thread[Scheduler]: the block has been destructed.");
-    if (blk->isSinkInterface())
+
+    pthread_setname_np(blk->GetName().c_str());
+
+    //如果是Sink接口
+    if (blk->GetType() == BasicBlock::SINKAPI)
     {
         std::shared_ptr<SinkInterface> spSinkblk = std::dynamic_pointer_cast<SinkInterface,BasicBlock>(blk);
         if (spSinkblk == nullptr)
             throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to Sink failed.");
 
-        while (!_done)
+        while (1)
         {
+            std::unique_lock<std::mutex> apilock(TopFlow::_apimutex);
+            TopFlow::_apicond.wait(apilock,[&](){
+                return !TopFlow::_hassourceapi || spSinkblk->GetTranstate()->GetTranState()!=TranState::RECEIVE;
+            });
+
             ClearChanged();
             state = SinkWork(spSinkblk);
+            State tmp;
             switch (state)
             {
                 case READY:
@@ -86,18 +103,73 @@ void Thread::Scheduler()
                     //不通知收进程
                     break;
                 case BLKD_IN:
-                {
-                    std::unique_lock<std::mutex> lk(_mutex);
-                    _cond.wait(lk, [this](){return _inchanged;});
-                }
+                    //sink不应该被阻塞
+                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
+                    sleep(1);
+                    //bug:如果下面这个返回DONE，就永远进不了DONE
+                    tmp = SinkWork(spSinkblk);
+                    if (tmp == BLKD_IN)
+                    {
+                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                        TopFlow::_apicond.notify_one();
+                    }
+                    else if (tmp == READY)
+                    {
+                        NotifyUpblocks(spSinkblk);
+                    }
+                    else if (tmp == BLKD_OUT)
+                    {
+
+                    }
+                    else if (tmp == DONE)
+                    {
+                        NotifyUpblocks(spSinkblk);
+                        //通知收进程已完成
+                        spSinkblk->SetDone();
+                        //唤醒收链路
+                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                        TopFlow::_apicond.notify_one();
+                        return;
+                    }
                     break;
                 case BLKD_OUT:
                     //不断检查输出buffer有没有空位
+                    //bug：如果双方都在发送，一直不读，会一直卡在这，以下解决这个问题
+                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
+                    sleep(1);
+                    //bug:如果下面这个返回DONE，就永远进不了DONE
+                    tmp = SinkWork(spSinkblk);
+                    if (tmp == BLKD_IN)
+                    {
+
+                    }
+                    else if (tmp == READY)
+                    {
+                        NotifyUpblocks(spSinkblk);
+                    }
+                    else if (tmp == BLKD_OUT)
+                    {
+                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                        TopFlow::_apicond.notify_one();
+                    }
+                    else if (tmp == DONE)
+                    {
+                        NotifyUpblocks(spSinkblk);
+                        //通知收进程已完成
+                        spSinkblk->SetDone();
+                        //唤醒收链路
+                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                        TopFlow::_apicond.notify_one();
+                        return;
+                    }
                     break;
                 case DONE:
                     NotifyUpblocks(spSinkblk);
                     //通知收进程已完成
                     spSinkblk->SetDone();
+                    //唤醒收链路
+                    spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                    TopFlow::_apicond.notify_one();
                     return;
 
                 default:
@@ -107,16 +179,23 @@ void Thread::Scheduler()
 
 
     }
-    else if (blk->isSourceInterface())
+    //如果是Source接口
+    else if (blk->GetType() == BasicBlock::SOURCEAPI)
     {
         std::shared_ptr<SourceInterface> spSourceblk = std::dynamic_pointer_cast<SourceInterface,BasicBlock>(blk);
         if (spSourceblk == nullptr)
             throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to Source failed.");
 
-        while (!_done)
+        while (1)
         {
+            std::unique_lock<std::mutex> apilock(TopFlow::_apimutex);
+            TopFlow::_apicond.wait(apilock,[&](){
+                return !TopFlow::_hassinkapi || spSourceblk->GetTranstate()->GetTranState()!=TranState::SEND;
+            });
+
             ClearChanged();
             state = SourceWork(spSourceblk);
+            State tmp;
             switch (state)
             {
                 case READY:
@@ -124,7 +203,75 @@ void Thread::Scheduler()
                     NotifyDownblocks(spSourceblk);
                     break;
                 case BLKD_IN:
-                    //不断检查是否有新数据了
+                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入SEND状态
+                    sleep(1);
+                    //bug:如果下面这个返回DONE，就永远进不了DONE
+                    tmp = SourceWork(spSourceblk);
+                    if (tmp == BLKD_IN)
+                    {
+                        spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                        TopFlow::_apicond.notify_one();
+                    }
+                    else if (tmp == READY)
+                    {
+                        NotifyDownblocks(spSourceblk);
+                    }
+                    else if (tmp == BLKD_OUT)
+                    {
+                        
+                    }
+                    else if (tmp == DONE)
+                    {
+                        NotifyDownblocks(spSourceblk);
+                        //将共享内存的_done标志设为1，通知另一个进程
+                        spSourceblk->SetDone();
+                        //唤醒发链路
+                        spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                        TopFlow::_apicond.notify_one();
+                        return;
+                    }
+                    break;
+                case BLKD_OUT:
+                    //Source也不应该被阻塞
+                    break;
+                case DONE:
+                    NotifyDownblocks(spSourceblk);
+                    //将共享内存的_done标志设为1，通知另一个进程
+                    spSourceblk->SetDone();
+                    //唤醒发链路
+                    spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                    TopFlow::_apicond.notify_one();
+                    return;
+
+                default:
+                    throw std::runtime_error("Thread[Scheduler]: Wrong state of SourceInterface.");
+            }
+        }
+    }
+    //如果是MsgGenerater
+    else if (blk->GetType() == BasicBlock::MSGGEN)
+    {
+        std::shared_ptr<MsgGenerater> msggen = std::dynamic_pointer_cast<MsgGenerater,BasicBlock>(blk);
+        if (msggen == nullptr)
+            throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to MsgGenerater failed.");
+
+        while (1)
+        {
+            ClearChanged();
+            state = MsggenWork(msggen);
+
+            switch (state)
+            {
+                case READY:
+                    NotifyDownblocks(msggen);
+                    break;
+                case BLKD_IN:
+                    //不断查看有没有新任务到来
+//                {
+//                    //等待新任务的到来，由控制中心通知它
+//                    std::unique_lock<std::mutex> lk(_mutex);
+//                    _cond.wait(lk, [this](){return _inchanged;});
+//                }
                     break;
                 case BLKD_OUT:
                 {
@@ -133,19 +280,55 @@ void Thread::Scheduler()
                 }
                     break;
                 case DONE:
-                    //将共享内存的_done标志设为1
-                    spSourceblk->SetDone();
-                    NotifyDownblocks(spSourceblk);
+                    NotifyDownblocks(msggen);
                     return;
 
                 default:
-                    throw std::runtime_error("Thread[Scheduler]: Wrong state of SourceInterface.");
+                    throw std::runtime_error("Thread[Scheduler]: Wrong state of MsgGenerater.");
             }
         }
     }
+    //如果是MsgParser
+    else if (blk->GetType() == BasicBlock::MSGPARSER)
+    {
+        std::shared_ptr<MsgParser> msgparser = std::dynamic_pointer_cast<MsgParser, BasicBlock>(blk);
+        if (msgparser == nullptr)
+            throw std::runtime_error("Thread[Scheduler]: dynamic pointer cast to MsgParser failed.");
+
+        while (1)
+        {
+            ClearChanged();
+            state = MsgparserWork(msgparser);
+
+            switch (state) {
+                case READY:
+                    NotifyDownblocks(msgparser);
+                    break;
+                case BLKD_IN:
+                {
+                    std::unique_lock<std::mutex> lk(_mutex);
+                    _cond.wait(lk, [this]() { return _inchanged; });
+                }
+                    break;
+                case BLKD_OUT:
+                {
+                    std::unique_lock<std::mutex> lk(_mutex);
+                    _cond.wait(lk, [this]() { return _outchanged; });
+                }
+                    break;
+                case DONE:
+                    NotifyDownblocks(msgparser);
+                    return;
+
+                default:
+                    throw std::runtime_error("Thread[Scheduler]: Wrong state of MsgGenerater.");
+            }
+        }
+    }
+    //如果是普通模块
     else
     {
-        while (!_done)
+        while (1)
         {
             //每个线程只会清零自己的条件变量，但是会设置邻居的条件变量为true，每个线程只需监控自己的条件变量
             ClearChanged();
@@ -158,22 +341,14 @@ void Thread::Scheduler()
                     break;
                 case BLKD_IN:
                 {
-//                    time_t start, end;
-//                    start = clock();
                     std::unique_lock<std::mutex> lk(_mutex);
-                    _cond.wait(lk, [this](){return _inchanged;});
-//                    end = clock();
-//                    std::cout << "blkd_in wait: " << (double)(end-start)/CLOCKS_PER_SEC*1000 << "ms" << std::endl;
+                    _cond.wait(lk, [this](){return _inchanged || _outchanged;});
                 }
                     break;
                 case BLKD_OUT:
                 {
-//                    time_t start, end;
-//                    start = clock();
                     std::unique_lock<std::mutex> lk(_mutex);
-                    _cond.wait(lk, [this](){return _outchanged;});
-//                    end = clock();
-//                    std::cout << "blkd_out wait: " << (double)(end-start)/CLOCKS_PER_SEC*1000 << "ms" << std::endl;
+                    _cond.wait(lk, [this](){return _outchanged || _inchanged;});
                 }
                     break;
                 case DONE:
@@ -191,14 +366,16 @@ void Thread::Scheduler()
 
 Thread::State Thread::SinkWork(spSink blk)
 {
+    if (_done)
+        return DONE;
+    if (blk->isDone() == 1)
+    {
+        _done = true;
+        return DONE;
+    }
     int noutput = blk->CalcAvailSpace();
     if (noutput == 0)
     {
-        if (blk->isDone() == 1)
-        {
-            _done = true;
-            return DONE;
-        }
         return BLKD_OUT;
     }
     int avail_data = blk->GetInbuffer(0)->CalcAvailData();
@@ -209,6 +386,7 @@ Thread::State Thread::SinkWork(spSink blk)
             _done = true;
             return DONE;
         }
+
         return BLKD_IN;
     }
     noutput = std::min(noutput,avail_data);
@@ -224,6 +402,21 @@ Thread::State Thread::SinkWork(spSink blk)
 
 Thread::State Thread::SourceWork(spSource blk)
 {
+    if (_done)
+        return DONE;
+    if (blk->isDone() == 1)
+    {
+        _done = true;
+        return DONE;
+    }
+
+    int avail_data = blk->CalcAvailData();
+    if (avail_data <= 0)
+    {
+        return BLKD_IN;
+    }
+
+
     int noutput = blk->GetOutbuffer(0)->CalcAvailSpace();
     if (noutput == 0)
     {
@@ -235,16 +428,6 @@ Thread::State Thread::SourceWork(spSource blk)
         return BLKD_OUT;
     }
 
-    int avail_data = blk->CalcAvailData();
-    if (avail_data <= 0)
-    {
-        if (blk->isDone() == 1)
-        {
-            _done = true;
-            return DONE;
-        }
-        return BLKD_IN;
-    }
 
     noutput = std::min(noutput, avail_data);
     _output[0] = blk->GetOutbuffer(0)->GetWritepointer();
@@ -253,6 +436,66 @@ Thread::State Thread::SourceWork(spSource blk)
     int nproduce = _blockrun(noutput, _input, _output);
     blk->GetOutbuffer(0)->Produce(nproduce);
     blk->Consume(noutput);
+
+    return READY;
+}
+
+Thread::State Thread::MsggenWork(spMsggen blk)
+{
+    if (_done)
+        return DONE;
+    if (DownBlocksDone(blk))
+    {
+        _done = true;
+        return DONE;
+    }
+    int avail_space = blk->GetOutbuffer(0)->CalcAvailSpace();
+    if (avail_space <= 0)
+    {
+        if (DownBlocksDone(blk))
+        {
+            _done = true;
+            return DONE;
+        }
+        return BLKD_OUT;
+    }
+    _output[0] = blk->GetOutbuffer(0)->GetWritepointer();
+    int nproduce = _blockrun(avail_space, _input, _output);
+    if (nproduce == -1)
+    {
+        _done = true;
+        return DONE;
+    }
+    else if (nproduce == -2) //没有发送任务了
+    {
+//        blk->GetTranstate()->SetTranState(TranState::RECEIVE);
+//        _apicond.notify_one(); //通知Sinkapi
+        return BLKD_IN;
+    }
+    blk->GetOutbuffer(0)->Produce(nproduce);
+
+    return READY;
+}
+
+Thread::State Thread::MsgparserWork(spMsgparser blk)
+{
+    if (_done)
+        return DONE;
+
+    int avail_data = blk->GetInbuffer(0)->CalcAvailData();
+    if (avail_data <= 0)
+    {
+        if (UpBlocksDone(blk))
+        {
+            _done = true;
+            return DONE;
+        }
+        return BLKD_IN;
+    }
+    _input[0] = blk->GetInbuffer(0)->GetReadpointer();
+
+    _blockrun(avail_data, _input, _output);
+    blk->GetInbuffer(0)->Consume(avail_data);
 
     return READY;
 }
@@ -269,6 +512,15 @@ Thread::State Thread::Work()
     if (blk == nullptr)
         throw std::runtime_error("Thread[Work]: block has been destructed");
 
+    //如果本模块已经完成则返回DONE；如果下一级模块都已经完成，则也没有work的必要了，返回DONE
+    if (_done)
+        return DONE;
+    if (DownBlocksDone(blk))
+    {
+        _done = true;
+        return DONE;
+    }
+
     //可用输出空间大小，以一个数据类型为单位，如int类型就是可产生多少个int数据
     int min_avail_space = INT_MAX;
     for (int port=0; port<_noutport; ++port)
@@ -279,10 +531,6 @@ Thread::State Thread::Work()
 
         _output[port] = buffer->GetWritepointer();
     }
-//    {
-//        std::unique_lock<std::mutex> lk(_smutex);
-//        std::cout << "Thread id: " << std::this_thread::get_id() << ", min_avail_space: " << min_avail_space << std::endl;
-//    }
 
 
     if (min_avail_space == 0)
@@ -414,26 +662,32 @@ void Thread::NotifyDownblocks(spBasicBlock blk)
 
 bool Thread::UpBlocksDone(spBasicBlock blk)
 {
-    //输入数据不够的情况下，只要有一个upBlock结束了，就认为我也结束了
+    //UpBlocks都结束了，就认为我也结束了
+    //bug:如果对没有UpBlock的模块调用，应该返回false
+    if (_ninport <= 0)
+        return false;
     for (int i=0; i<_ninport; ++i)
     {
-        if (blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
-            return true;
+        if (!blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
+            return false;
     }
-    return false;
+    return true;
 }
 
 bool Thread::DownBlocksDone(spBasicBlock blk)
 {
-    //输出空间不够，只要有一个downBlock结束了，就认为我也结束了
+    //DownBlocks都结束了，就认为我也结束了
+    //bug:如果对没有DownBlock的模块调用，应该返回false
+    if (_noutport <= 0)
+        return false;
     for (int i=0; i<_noutport; ++i)
     {
         std::vector<spBufferReader> readers = blk->GetOutbuffer(i)->GetBufreader();
         for (spBufferReader reader : readers)
         {
-            if (reader->GetBlock().lock()->Done())
-                return true;
+            if (!reader->GetBlock().lock()->Done())
+                return false;
         }
     }
-    return false;
+    return true;
 }

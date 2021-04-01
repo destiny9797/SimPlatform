@@ -10,7 +10,7 @@
 class NullSource : public BasicBlock
 {
 public:
-    NullSource(int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
+    NullSource(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
     ~NullSource() override;
 
 private:

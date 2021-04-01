@@ -13,8 +13,7 @@
 #define NITEMS ( 8 * (1L<<10) )
 
 Interface::Interface(std::string fname, int sizeofitem)
-    : BasicBlock(1, sizeofitem, 1, sizeofitem),
-      _fname(fname),
+    : _fname(fname),
       _sizeof_interface(sizeofitem)
 {
     _fname = "/Users/zhujiaying/github/SimPlatform/tmp/" + fname;
@@ -72,7 +71,7 @@ Interface::Interface(std::string fname, int sizeofitem)
     _base = (char*)firstcopy;
     close(fd);
 
-    std::string rwpfilename = "/Users/zhujiaying/github/SimPlatform/tmp/rw_index";
+    std::string rwpfilename = "/Users/zhujiaying/github/SimPlatform/tmp/rw_index" + fname;
     fd = open(rwpfilename.c_str(), O_RDWR | O_CREAT, 0666);
     if (fd == -1)
     {
@@ -105,10 +104,12 @@ Interface::~Interface() noexcept
     std::cout << "~Interface()" << std::endl;
 }
 
-SinkInterface::SinkInterface(std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel)
-    : Interface(fname, sizeofitem)
+SinkInterface::SinkInterface(spTranState state, std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel)
+    : BasicBlock("SinkApi",1,sizeofitem,1,sizeofitem),
+      Interface(fname, sizeofitem),
+      _transtate(state)
 {
-    SetSink();
+    SetType(SINKAPI);
     std::string sem1_name = fname + "_1";
     std::string sem2_name = fname + "_2";
     sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);
@@ -158,10 +159,12 @@ int SinkInterface::work(int noutput, std::vector<const void *> &input, std::vect
     return noutput;
 }
 
-SourceInterface::SourceInterface(std::string fname, int sizeofitem)
-    : Interface(fname, sizeofitem)
+SourceInterface::SourceInterface(spTranState state, std::string fname, int sizeofitem)
+    : BasicBlock("SourceApi",1,sizeofitem,1,sizeofitem),
+      Interface(fname, sizeofitem),
+      _transtate(state)
 {
-    SetSource();
+    SetType(SOURCEAPI);
     std::string sem1_name = fname + "_1";
     std::string sem2_name = fname + "_2";
     sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);

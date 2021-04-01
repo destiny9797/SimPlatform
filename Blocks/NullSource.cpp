@@ -7,8 +7,8 @@
 
 static int num = 0;
 
-NullSource::NullSource(int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
-    : BasicBlock(ninput,sizeofinitem,noutput,sizeofoutitem)
+NullSource::NullSource(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
+    : BasicBlock(name, ninput,sizeofinitem,noutput,sizeofoutitem)
 {
 
 }

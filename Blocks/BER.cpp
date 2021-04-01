@@ -5,8 +5,8 @@
 #include "BER.h"
 #include <iostream>
 
-BER::BER()
-    : BasicBlock(2,sizeof(uint8_t),0,0),
+BER::BER(std::string name)
+    : BasicBlock(name, 2,sizeof(uint8_t),0,0),
       _ntotalbit(0),
       _nerrorbit(0)
 {
@@ -16,6 +16,7 @@ BER::BER()
 BER::~BER() noexcept
 {
     double ber = _nerrorbit==0 ? 0 : (double)_nerrorbit/(double)_ntotalbit;
+    std::cout << "totalbit is: " << _ntotalbit << std::endl;
     std::cout << "Bit Error Rate is: " << ber << std::endl;
 }
 

@@ -20,7 +20,7 @@ Buffer::Buffer(wpBasicBlock block, int nitems, int sizeofitem)
       _basebuffer(nullptr),
       _readerlist()
 {
-    if (!_block.lock()->isSinkInterface())
+    if (_block.lock()->GetType() != BasicBlock::SINKAPI)
         AllocateBuffer(nitems,sizeofitem);
 }
 
@@ -50,21 +50,21 @@ void Buffer::AllocateBuffer(int nitems, int sizeofitem)
     s_buffer_counter++;
 
     //打开一个文件，返回文件描述符
-    int fd = open(buffer_name.c_str(), O_RDWR | O_CREAT | O_EXCL);
+    int fd = open(buffer_name.c_str(), O_RDWR | O_CREAT | O_EXCL, 0777);
     if (fd == -1)
     {
         throw std::runtime_error("Buffer[AllocateBuffer]: open buffer file failed.");
     }
 
     //将文件expand到 2*size 大小
-    if (ftruncate(fd,(off_t)2*size) == -1)
+    if (ftruncate(fd,(off_t)(2*size)) == -1)
     {
         close(fd);
         throw std::runtime_error("Buffer[AllocateBuffer]: ftruncate 1 failed.");
     }
 
     //mmap映射，指针指向文件数据，映射 2*size 的数据
-    void* firstcopy = mmap(0, 2*size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
+    void* firstcopy = mmap(NULL, 2*size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
     if (firstcopy == MAP_FAILED)
     {
         close(fd);
@@ -74,6 +74,7 @@ void Buffer::AllocateBuffer(int nitems, int sizeofitem)
     if (munmap((char*)firstcopy+size, size) == -1)
     {
         close(fd);
+        perror("munmap:");
         throw std::runtime_error("Buffer[AllocateBuffer]: munmap failed.");
     }
 

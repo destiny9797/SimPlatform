@@ -3,8 +3,13 @@
 //
 
 #include "TopFlow.h"
+#include "MsgControl.h"
 
 
+std::mutex TopFlow::_apimutex;
+std::condition_variable TopFlow::_apicond;
+bool TopFlow::_hassinkapi = false;
+bool TopFlow::_hassourceapi = false;
 
 TopFlow::TopFlow()
     : _connections(),
@@ -60,6 +65,34 @@ void TopFlow::MakeThread()
         _threadpool.AddThread(block->GetThread());
     }
 }
+
+void TopFlow::SetTask()
+{
+    std::vector<spBasicBlock> blocks = _connections.GetUsedBlocks();
+    for (spBasicBlock block : blocks)
+    {
+        if (block->GetType() == BasicBlock::MSGGEN)
+        {
+            std::shared_ptr<MsgGenerater> blk = std::dynamic_pointer_cast<MsgGenerater,BasicBlock>(block);
+            if (blk == nullptr)
+                throw std::runtime_error("TopFlow[SetupConn]: cast to MsgGenerater failed.");
+            blk->SetTaskpool(std::make_shared<TaskPool>(_taskpool));
+        }
+        else if (block->GetType() == BasicBlock::MSGPARSER)
+        {
+            std::shared_ptr<MsgParser> blk = std::dynamic_pointer_cast<MsgParser,BasicBlock>(block);
+            if (blk == nullptr)
+                throw std::runtime_error("TopFlow[SetupConn]: cast to MsgParser failed.");
+            blk->SetTaskpool(std::make_shared<TaskPool>(_taskpool));
+        }
+    }
+}
+
+void TopFlow::AddTask(Task task)
+{
+    _taskpool.AddTask(task);
+}
+
 void TopFlow::Run()
 {
 
@@ -73,7 +106,10 @@ void TopFlow::Start()
 
     _connections.SetupConn();
 
+    SetTask();
+
     MakeThread();
+
 
 //    Run();
 }

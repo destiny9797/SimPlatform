@@ -16,6 +16,8 @@ class Buffer;
 class BufferReader;
 class SinkInterface;
 class SourceInterface;
+class MsgGenerater;
+class MsgParser;
 
 class Thread
 {
@@ -28,6 +30,8 @@ public:
 
     typedef std::shared_ptr<SinkInterface> spSink;
     typedef std::shared_ptr<SourceInterface> spSource;
+    typedef std::shared_ptr<MsgGenerater> spMsggen;
+    typedef std::shared_ptr<MsgParser> spMsgparser;
 
     typedef std::function<int(int, std::vector<const void*>&, std::vector<void*>&)> Callback_BlockRun;
 //    typedef std::function<void(spBasicBlock, bool)> Callback_Notify;
@@ -81,6 +85,10 @@ private:
 
     bool DownBlocksDone(spBasicBlock blk);
 
+    bool UpBlocksSuspend(spBasicBlock blk);
+
+    bool DownBlocksSuspend(spBasicBlock blk);
+
     void Scheduler();
 
     State Work();
@@ -88,6 +96,10 @@ private:
     State SinkWork(spSink blk);
 
     State SourceWork(spSource blk);
+
+    State MsggenWork(spMsggen blk);
+
+    State MsgparserWork(spMsgparser blk);
 
     wpBasicBlock _block;
 

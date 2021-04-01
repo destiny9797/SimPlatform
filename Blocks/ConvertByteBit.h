@@ -11,7 +11,7 @@
 class ConvertByteBit : public BasicBlock
 {
 public:
-    ConvertByteBit(bool byte_to_bit = true);
+    ConvertByteBit(std::string name, bool byte_to_bit = true);
 
     ~ConvertByteBit() override;
 

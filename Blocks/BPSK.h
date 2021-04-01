@@ -10,7 +10,7 @@
 class BPSK : public BasicBlock
 {
 public:
-    BPSK();
+    BPSK(std::string name);
 
     ~BPSK() override;
 

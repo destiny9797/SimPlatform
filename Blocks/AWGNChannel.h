@@ -12,7 +12,7 @@
 class AWGNChannel : public BasicBlock
 {
 public:
-    AWGNChannel(float noise_power);
+    AWGNChannel(std::string name, float noise_power);
 
     ~AWGNChannel() override;
 

@@ -8,8 +8,8 @@
 
 static long long int num = 0;
 
-MsgGenerator::MsgGenerator(int nbytes)
-    : BasicBlock(0,0,1,sizeof(uint8_t)),
+MsgGenerator::MsgGenerator(std::string name, int nbytes)
+    : BasicBlock(name,0,0,1,sizeof(uint8_t)),
       _nbytes(nbytes)
 {
     unsigned seed = time(0);
@@ -28,9 +28,9 @@ void MsgGenerator::forecast(int noutput, int &ninput_required)
 
 int MsgGenerator::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
 {
-    std::cout << "------------------------" << std::endl;
-    std::cout << "nbytes=" << _nbytes << std::endl;
-    std::cout << "noutput=" << noutput << std::endl;
+//    std::cout << "------------------------" << std::endl;
+//    std::cout << "nbytes=" << _nbytes << std::endl;
+//    std::cout << "noutput=" << noutput << std::endl;
     if (_nbytes == 0)
         return -1;
 
@@ -42,9 +42,9 @@ int MsgGenerator::work(int noutput, std::vector<const void *> &input, std::vecto
     {
         out[i] = (uint8_t)(rand() % 255);
         --_nbytes;
-        std::cout << (int)out[i] << " ";
+//        std::cout << (int)out[i] << " ";
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
 
     return i;
 }

@@ -8,8 +8,8 @@
 
 static int num = 1;
 
-NullSink::NullSink(int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
-    : BasicBlock(ninput, sizeofinitem, noutput, sizeofoutitem)
+NullSink::NullSink(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
+    : BasicBlock(name, ninput, sizeofinitem, noutput, sizeofoutitem)
 {
 }
 
@@ -52,9 +52,10 @@ int NullSink::work(int noutput, std::vector<const void *> &input, std::vector<vo
 
     for (int i=0; i<noutput; ++i)
     {
-        std::cout << (int)in[i] << " ";
+
+//        std::cout << (int)in[i] << " ";
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
 
     return noutput;
 }

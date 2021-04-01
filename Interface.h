@@ -6,16 +6,22 @@
 #define SIMPLATFORM_INTERFACE_H
 
 #include "BasicBlock.h"
+#include "TranState.h"
 #include <string>
 #include <iostream>
 
-class Interface : public BasicBlock
+
+
+class Interface : virtual public BasicBlock
 {
 public:
-    char* GetBase()
-    {
-        return _base;
-    }
+    typedef std::shared_ptr<TranState> spTranState;
+
+    Interface(std::string fname, int sizeofitem);
+
+    ~Interface();
+
+
     int CalcAvailData()
     {
         return MinusInd(*_writeind, *_readind);
@@ -36,9 +42,6 @@ public:
     }
 
 protected:
-    Interface(std::string fname, int sizeofitem);
-
-    ~Interface();
 
     int AddInd(int x, int y)
     {
@@ -56,16 +59,6 @@ protected:
             res += _bufsize;
         assert(res>=0 && res<_bufsize);
         return res;
-    }
-
-    void SetSink()
-    {
-        _issinkinterface = true;
-    }
-
-    void SetSource()
-    {
-        _issourceinterfacce = true;
     }
 
     int _sizeof_interface;
@@ -95,7 +88,7 @@ public:
     enum fade_model{
         Rayleigh
     };
-    SinkInterface(std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel);
+    SinkInterface(spTranState state, std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel);
 
     ~SinkInterface() override;
 
@@ -108,17 +101,21 @@ public:
         *_writeind = AddInd(*_writeind, n);
     }
 
+    spTranState GetTranstate(){ return _transtate; }
+
 private:
     void forecast(int noutput, int& ninput_required) override;
 
     int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) override;
+
+    spTranState _transtate;
 };
 
 
 class SourceInterface : public Interface
 {
 public:
-    SourceInterface(std::string fname, int sizeofitem);
+    SourceInterface(spTranState state, std::string fname, int sizeofitem);
 
     ~SourceInterface() override;
 
@@ -132,10 +129,14 @@ public:
         *_readind = AddInd(*_readind, n);
     }
 
+    spTranState GetTranstate(){ return _transtate; }
+
 private:
     void forecast(int noutput, int& ninput_required) override;
 
     int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) override;
+
+    spTranState _transtate;
 };
 
 #endif //SIMPLATFORM_INTERFACE_H
