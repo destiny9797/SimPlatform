@@ -25,7 +25,7 @@ void BER::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int BER::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int BER::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const uint8_t* in1 = (const uint8_t*)input[0];
     const uint8_t* in2 = (const uint8_t*)input[1];
@@ -36,6 +36,7 @@ int BER::work(int noutput, std::vector<const void *> &input, std::vector<void *>
         if (in1[i] != in2[i])
             ++_nerrorbit;
     }
-    
+
+    ninput = noutput;
     return noutput;
 }

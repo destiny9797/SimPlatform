@@ -33,7 +33,7 @@ public:
     typedef std::shared_ptr<MsgGenerater> spMsggen;
     typedef std::shared_ptr<MsgParser> spMsgparser;
 
-    typedef std::function<int(int, std::vector<const void*>&, std::vector<void*>&)> Callback_BlockRun;
+    typedef std::function<int(int, int&, std::vector<const void*>&, std::vector<void*>&)> Callback_BlockRun;
 //    typedef std::function<void(spBasicBlock, bool)> Callback_Notify;
 
     enum State {

@@ -7,6 +7,7 @@
 
 #include "Buffer.h"
 #include "Thread.h"
+#include <string>
 #include <unistd.h>
 #include <memory>
 
@@ -88,7 +89,7 @@ public:
 protected:
     BasicBlock(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
 
-    virtual int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) = 0;
+    virtual int work(int noutput, int& ninput, std::vector<const void*>& input, std::vector<void*>& output) = 0;
 
 
 private:

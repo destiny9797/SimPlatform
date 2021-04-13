@@ -23,7 +23,7 @@ void MsgGenerater::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int MsgGenerater::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int MsgGenerater::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     Task task = _taskpool->GetTask();
     if (task == nullptr)
@@ -57,7 +57,7 @@ void MsgParser::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int MsgParser::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int MsgParser::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const uint8_t* in = (const uint8_t*)input[0];
 //    if (noutput > MAXCACHE)
@@ -77,5 +77,7 @@ int MsgParser::work(int noutput, std::vector<const void *> &input, std::vector<v
     {
         std::cout << (int)in[i] << " ";
     }
+
+    ninput = noutput;
     return noutput;
 }

@@ -14,7 +14,7 @@ public:
     ~NullSource() override;
 
 private:
-    virtual int work(int noutput, std::vector<const void*>& input, std::vector<void*>& output) override;
+    virtual int work(int noutput, int& ninput, std::vector<const void*>& input, std::vector<void*>& output) override;
 
     virtual void forecast(int noutput, int& ninput_required) override;
 

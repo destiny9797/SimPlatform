@@ -393,7 +393,8 @@ Thread::State Thread::SinkWork(spSink blk)
     _output[0] = blk->GetWritepointer();
     _input[0] = blk->GetInbuffer(0)->GetReadpointer();
 
-    int nproduce = _blockrun(noutput, _input, _output);
+    int ninput = 0;
+    int nproduce = _blockrun(noutput, ninput, _input, _output);
     blk->Produce(nproduce);
     blk->GetInbuffer(0)->Consume(noutput);
 
@@ -433,7 +434,8 @@ Thread::State Thread::SourceWork(spSource blk)
     _output[0] = blk->GetOutbuffer(0)->GetWritepointer();
     _input[0] = blk->GetReadpointer();
 
-    int nproduce = _blockrun(noutput, _input, _output);
+    int ninput = 0;
+    int nproduce = _blockrun(noutput, ninput, _input, _output);
     blk->GetOutbuffer(0)->Produce(nproduce);
     blk->Consume(noutput);
 
@@ -460,7 +462,9 @@ Thread::State Thread::MsggenWork(spMsggen blk)
         return BLKD_OUT;
     }
     _output[0] = blk->GetOutbuffer(0)->GetWritepointer();
-    int nproduce = _blockrun(avail_space, _input, _output);
+
+    int ninput = 0;
+    int nproduce = _blockrun(avail_space, ninput, _input, _output);
     if (nproduce == -1)
     {
         _done = true;
@@ -494,8 +498,9 @@ Thread::State Thread::MsgparserWork(spMsgparser blk)
     }
     _input[0] = blk->GetInbuffer(0)->GetReadpointer();
 
-    _blockrun(avail_data, _input, _output);
-    blk->GetInbuffer(0)->Consume(avail_data);
+    int ninput = 0;
+    _blockrun(avail_data, ninput, _input, _output);
+    blk->GetInbuffer(0)->Consume(ninput);
 
     return READY;
 }
@@ -612,11 +617,12 @@ Thread::State Thread::Work()
         return BLKD_OUT;
 
     //假设block的消耗和生产数量相等，如果有插值、采样，要乘除
-    int ninput = noutput / _interpolation * _decitmation;
+    //在_blockrun中设置
+    int ninput = 0;//= noutput / _interpolation * _decitmation;
 
     //为啥需要返回产生了多少，不就是noutput吗？
     //因为
-    int nproduce = _blockrun(noutput, _input, _output);
+    int nproduce = _blockrun(noutput, ninput, _input, _output);
     if (nproduce == -1)
     {
         _done = true;

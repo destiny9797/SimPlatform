@@ -27,7 +27,7 @@ void AWGNChannel::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int AWGNChannel::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int AWGNChannel::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const float* in = (const float*)input[0];
     float* out = (float*)output[0];
@@ -41,5 +41,6 @@ int AWGNChannel::work(int noutput, std::vector<const void *> &input, std::vector
         out += 2;
     }
 
+    ninput = noutput;
     return noutput;
 }

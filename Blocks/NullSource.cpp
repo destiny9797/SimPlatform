@@ -23,7 +23,7 @@ void NullSource::forecast(int noutput, int &ninput_required)
     ninput_required = noutput + GetHistory() - 1;
 }
 
-int NullSource::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int NullSource::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     if (num == 100000)
         return -1;
@@ -37,6 +37,7 @@ int NullSource::work(int noutput, std::vector<const void *> &input, std::vector<
         out[i] = (num++) ;
     }
 
+    ninput = noutput;
     return i;
 
 }

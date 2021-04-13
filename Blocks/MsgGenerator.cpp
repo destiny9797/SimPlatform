@@ -26,7 +26,7 @@ void MsgGenerator::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int MsgGenerator::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int MsgGenerator::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
 //    std::cout << "------------------------" << std::endl;
 //    std::cout << "nbytes=" << _nbytes << std::endl;

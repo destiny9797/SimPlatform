@@ -23,7 +23,7 @@ void NullSink::forecast(int noutput, int &ninput_required)
     ninput_required = noutput / GetInterpolation() * GetDecimation() + GetHistory() - 1;
 }
 
-int NullSink::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int NullSink::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
 
 //    std::cout << "a work : " << noutput << std::endl;
@@ -57,5 +57,6 @@ int NullSink::work(int noutput, std::vector<const void *> &input, std::vector<vo
     }
 //    std::cout << std::endl;
 
+    ninput = noutput;
     return noutput;
 }

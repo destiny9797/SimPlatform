@@ -21,7 +21,7 @@ void BPSKDemod::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int BPSKDemod::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int BPSKDemod::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const std::complex<float>* in = (const std::complex<float>*)input[0];
     char* out = (char*)output[0];
@@ -31,5 +31,6 @@ int BPSKDemod::work(int noutput, std::vector<const void *> &input, std::vector<v
         out[i] = in[i].real()>0 ? 1 : 0;
     }
 
+    ninput = noutput;
     return noutput;
 }

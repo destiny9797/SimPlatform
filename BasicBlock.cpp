@@ -45,5 +45,10 @@ void BasicBlock::ThreadRegister()
 {
     _thread = std::make_shared<Thread>(shared_from_this());
 //    _thread->SetLinkblock(shared_from_this());
-    _thread->SetBlockrunCallback(std::bind(&BasicBlock::work, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    _thread->SetBlockrunCallback(std::bind(&BasicBlock::work,
+                                           this,
+                                           std::placeholders::_1,
+                                           std::placeholders::_2,
+                                           std::placeholders::_3,
+                                           std::placeholders::_4));
 }

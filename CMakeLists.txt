@@ -25,6 +25,31 @@ add_executable(test_bpsk
         Blocks/BPSKDemod.cpp
         Blocks/AWGNChannel.cpp
         Blocks/BER.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
+        )
+
+add_executable(test_framesync
+        test/test_framesync.cpp
+        TopFlow.cpp
+        BasicBlock.cpp
+        Connection.cpp
+        Buffer.cpp
+        Thread.cpp
+        ThreadPool.cpp
+        Interface.cpp
+        TranState.cpp
+        MsgControl.cpp
+        TaskPool.cpp
+        TaskType.cpp
+
+        Blocks/NullSource.cpp
+        Blocks/NullSink.cpp
+        Blocks/MsgGenerator.cpp
+        Blocks/ConvertByteBit.cpp
+        Blocks/BPSK.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
         )
 
 add_executable(test_transmitter
@@ -44,6 +69,8 @@ add_executable(test_transmitter
         Blocks/ConvertByteBit.cpp
         Blocks/BPSK.cpp
         Blocks/BPSKDemod.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
         )
 
 add_executable(test_receiver
@@ -63,4 +90,6 @@ add_executable(test_receiver
         Blocks/ConvertByteBit.cpp
         Blocks/BPSK.cpp
         Blocks/BPSKDemod.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
         )

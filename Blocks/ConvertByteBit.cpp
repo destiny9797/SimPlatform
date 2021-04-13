@@ -24,7 +24,7 @@ void ConvertByteBit::forecast(int noutput, int &ninput_required)
     ninput_required = noutput / GetInterpolation() * GetDecimation() + GetHistory() - 1;
 }
 
-int ConvertByteBit::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int ConvertByteBit::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const uint8_t* in = (const uint8_t*)input[0];
     uint8_t* out = (uint8_t*)output[0];
@@ -37,6 +37,7 @@ int ConvertByteBit::work(int noutput, std::vector<const void *> &input, std::vec
             uint8_t abyte = in[i];
             for (int j=8*i; j<8*i+8; ++j)
             {
+                //左边的bit先输出
                 out[j] = (abyte & 0x80) >> 7;
                 abyte <<= 1;
             }
@@ -57,5 +58,6 @@ int ConvertByteBit::work(int noutput, std::vector<const void *> &input, std::vec
     }
 
 
+    ninput = noutput / GetInterpolation() * GetDecimation() + GetHistory() - 1;
     return noutput;
 }

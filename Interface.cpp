@@ -140,7 +140,7 @@ void SinkInterface::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int SinkInterface::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int SinkInterface::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const char* in = (const char*)input[0];
     char* out = (char*)output[0];
@@ -156,6 +156,8 @@ int SinkInterface::work(int noutput, std::vector<const void *> &input, std::vect
             in++;
         }
     }
+
+    ninput = noutput;
     return noutput;
 }
 
@@ -195,7 +197,7 @@ void SourceInterface::forecast(int noutput, int &ninput_required)
     ninput_required = noutput;
 }
 
-int SourceInterface::work(int noutput, std::vector<const void *> &input, std::vector<void *> &output)
+int SourceInterface::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
     const char* in = (const char*)input[0];
     char* out = (char*)output[0];
@@ -211,5 +213,7 @@ int SourceInterface::work(int noutput, std::vector<const void *> &input, std::ve
             in++;
         }
     }
+
+    ninput = noutput;
     return noutput;
 }
