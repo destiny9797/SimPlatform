@@ -8,6 +8,7 @@
 #include "../Blocks/MsgGenerator.h"
 #include "../Blocks/ConvertByteBit.h"
 #include "../Blocks/BPSK.h"
+#include "../Blocks/BPSKDemod.h"
 #include "../Blocks/FrameEncap.h"
 #include "../Blocks/FrameSync.h"
 #include <complex>
@@ -22,12 +23,16 @@ void test1()
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>("byte_to_bit");
     spBasicBlock frameencap = std::make_shared<FrameEncap>("header","1111100110101", 96);
     spBasicBlock bpsk_mod = std::make_shared<BPSK>("bpsk_mod");
-    spBasicBlock sink = std::make_shared<NullSink>("sink",1,sizeof(std::complex<float>),0,0);
+    spBasicBlock bpsk_demod = std::make_shared<BPSKDemod>("bpsk_demod");
+    spBasicBlock framesync = std::make_shared<FrameSync>("framesync","1111100110101");
+    spBasicBlock sink = std::make_shared<NullSink>("sink",1,sizeof(uint8_t),0,0);
 
     topflow.Connect(msg,0,byte_to_bit,0);
     topflow.Connect(byte_to_bit,0,frameencap,0);
     topflow.Connect(frameencap,0,bpsk_mod,0);
-    topflow.Connect(bpsk_mod,0,sink,0);
+    topflow.Connect(bpsk_mod,0,bpsk_demod,0);
+    topflow.Connect(bpsk_demod,0,framesync,0);
+    topflow.Connect(framesync,0,sink,0);
 
     topflow.Start();
     topflow.Run();

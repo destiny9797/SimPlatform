@@ -24,6 +24,8 @@ private:
     int _headerlen;
 
     int _nrshift;
+
+    bool _findheader;
 };
 
 #endif //SIMPLATFORM_FRAMESYNC_H

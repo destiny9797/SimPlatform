@@ -5,6 +5,9 @@
 #include "BasicBlock.h"
 #include <iostream>
 
+
+std::mutex BasicBlock::_blockmutex;
+
 BasicBlock::BasicBlock(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
     : _name(name),
       _ninput(ninput),

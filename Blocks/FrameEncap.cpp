@@ -32,6 +32,10 @@ int FrameEncap::work(int noutput, int& ninput, std::vector<const void *> &input,
     uint8_t* out = (uint8_t*)output[0];
 
 
+//    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+//
+//    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+
     int j = 0;
     for (int i=0; i<noutput; ++i)
     {
@@ -43,7 +47,7 @@ int FrameEncap::work(int noutput, int& ninput, std::vector<const void *> &input,
             {
                 _countheader = 0;
                 _countbit = 0;
-                std::cout << std::endl;
+//                std::cout << std::endl;
             }
         }
         else
@@ -52,7 +56,7 @@ int FrameEncap::work(int noutput, int& ninput, std::vector<const void *> &input,
             ++j;
             ++_countbit;
         }
-        std::cout << (int)out[i] << " ";
+//        std::cout << (int)out[i] << " ";
     }
 
     ninput = j;

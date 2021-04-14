@@ -26,12 +26,16 @@ int BPSK::work(int noutput, int& ninput, std::vector<const void *> &input, std::
     const char* in = (const char*)input[0];
     float* out = (float*)output[0];
 
+    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+
+    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+
     for (int i=0; i<noutput; ++i)
     {
         out[0] = in[i]==1 ? 1 : -1;
         out[1] = 0;
         out += 2;
-//        std::cout << (int)in[i] << " ";
+        std::cout << (int)in[i] << " ";
     }
 
     ninput = noutput;

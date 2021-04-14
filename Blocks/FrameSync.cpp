@@ -3,12 +3,14 @@
 //
 
 #include "FrameSync.h"
+#include <iostream>
 
 FrameSync::FrameSync(std::string name, std::string header)
     : BasicBlock(name, 1, sizeof(uint8_t), 1, sizeof(uint8_t)),
       _header(header),
       _headerlen(header.size()),
-      _nrshift(0)
+      _nrshift(0),
+      _findheader(false)
 {
     SetHistory(_headerlen);
 }
@@ -29,7 +31,8 @@ int FrameSync::work(int noutput, int& ninput, std::vector<const void *> &input, 
     uint8_t* out = (uint8_t*)output[0];
 
     int j = 0;
-    for (int i=0; i<noutput; ++i)
+    int inmap;
+    for (int i=0; i<noutput+GetHistory()-1; ++i)
     {
         if (_nrshift > 0)
         {
@@ -38,14 +41,16 @@ int FrameSync::work(int noutput, int& ninput, std::vector<const void *> &input, 
         else
         {
             int correlation = 0;
-            for (int j=0; j<GetHistory(); ++j)
+            for (int j=0; j<GetHistory() && i<noutput; ++j)
             {
-                correlation += _header[j]=='1'? in[i+j] : -in[i+j];
+                inmap = in[i+j]==0 ? -1 : 1;
+                correlation += _header[j]=='1'? inmap : -inmap;
             }
             if (correlation >= _headerlen-1 || correlation <= 1-_headerlen){
                 _nrshift = _headerlen-1;
+                _findheader = true;
             }
-            else
+            else if (_findheader)
             {
                 out[j] = in[i];
                 ++j;
@@ -53,6 +58,7 @@ int FrameSync::work(int noutput, int& ninput, std::vector<const void *> &input, 
         }
 
     }
+
 
     ninput = noutput;
     return j;

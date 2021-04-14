@@ -48,12 +48,20 @@ int NullSink::work(int noutput, int& ninput, std::vector<const void *> &input, s
 //        num++;
 //    }
 
-//    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+
+    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
 
     for (int i=0; i<noutput; ++i)
     {
 
-//        std::cout << (int)in[i] << " ";
+        std::cout << (int)in[i] << " ";
+        num++;
+        if (num == 96)
+        {
+            std::cout << std::endl;
+            num = 0;
+        }
     }
 //    std::cout << std::endl;
 

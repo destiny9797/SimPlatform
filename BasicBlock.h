@@ -10,6 +10,7 @@
 #include <string>
 #include <unistd.h>
 #include <memory>
+#include <mutex>
 
 
 class BasicBlock : public std::enable_shared_from_this<BasicBlock> {
@@ -91,6 +92,7 @@ protected:
 
     virtual int work(int noutput, int& ninput, std::vector<const void*>& input, std::vector<void*>& output) = 0;
 
+    static std::mutex _blockmutex;
 
 private:
     BlockType _type;

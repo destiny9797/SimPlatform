@@ -48,6 +48,7 @@ add_executable(test_framesync
         Blocks/MsgGenerator.cpp
         Blocks/ConvertByteBit.cpp
         Blocks/BPSK.cpp
+        Blocks/BPSKDemod.cpp
         Blocks/FrameEncap.cpp
         Blocks/FrameSync.cpp
         )
