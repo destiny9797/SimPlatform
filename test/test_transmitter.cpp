@@ -36,14 +36,14 @@ int main(int argc, char* argv[])
     spBasicBlock sinkapi = std::make_shared<SinkInterface>(
             spstate,
             "AtoB",
-            sizeof(std::complex<float>),
+            sizeof(float),
             SinkInterface::AWGN,
             SinkInterface::Rayleigh);
 
     spBasicBlock sourceapi = std::make_shared<SourceInterface>(
             spstate,
             "BtoA",
-            sizeof(std::complex<float>));
+            sizeof(float));
 
 
     spBasicBlock msg = std::make_shared<MsgGenerater>(spstate);
