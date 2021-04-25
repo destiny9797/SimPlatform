@@ -54,7 +54,7 @@ void Thread::Wait()
     assert(_thr != nullptr);
     char name[20];
     pthread_getname_np(_thr->native_handle(),name,20);
-    std::cout << "Waiting for thread: " <<  name << std::endl;
+//    std::cout << "Waiting for thread: " <<  name << std::endl;
     if (_thr->joinable())
         _thr->join();
 }
@@ -578,7 +578,7 @@ Thread::State Thread::Work()
     noutput_required = noutput_required / _interpolation * _interpolation;
     if (noutput_required <= 0)
     {
-        //如果上一级blocks都已经done了，并且输入也都读完了，则本block也done了
+        //如果上一级blocks又一个已经done了，并且输入也都读完了，则本block也done了
         if (UpBlocksDone(blk))
         {
             _done = true;
@@ -668,16 +668,16 @@ void Thread::NotifyDownblocks(spBasicBlock blk)
 
 bool Thread::UpBlocksDone(spBasicBlock blk)
 {
-    //UpBlocks都结束了，就认为我也结束了
+    //UpBlocks有一个结束了，就认为我也结束了
     //bug:如果对没有UpBlock的模块调用，应该返回false
     if (_ninport <= 0)
         return false;
     for (int i=0; i<_ninport; ++i)
     {
-        if (!blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
-            return false;
+        if (blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
+            return true;
     }
-    return true;
+    return false;
 }
 
 bool Thread::DownBlocksDone(spBasicBlock blk)

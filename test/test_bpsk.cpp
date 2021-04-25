@@ -4,7 +4,7 @@
 
 #include "../TopFlow.h"
 #include "../BasicBlock.h"
-#include "../Blocks/NullSink.h"
+#include "../Blocks/NullSink.cpp"
 #include "../Blocks/MsgGenerator.h"
 #include "../Blocks/ConvertByteBit.h"
 #include "../Blocks/BPSK.h"
@@ -28,7 +28,7 @@ void test1()
     spBasicBlock channel = std::make_shared<AWGNChannel>("channel",En);
     spBasicBlock bpsk_demod = std::make_shared<BPSKDemod>("bpsk_demod");
     spBasicBlock bit_to_byte = std::make_shared<ConvertByteBit>("bit_to_byte",false);
-    spBasicBlock sink = std::make_shared<NullSink>("sink",1,sizeof(uint8_t),0,0);
+    spBasicBlock sink = std::make_shared<NullSink<uint8_t>>("sink");
     spBasicBlock ber = std::make_shared<BER>("ber");
 
     topflow.Connect(msg,0,byte_to_bit,0);

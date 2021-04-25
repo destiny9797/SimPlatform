@@ -181,11 +181,12 @@ void Connection::CheckConn()
         {
             if (outblock->GetType() != BasicBlock::SINKAPI)
             {
-                int nport = outblock->GetInputPortNum();
+                int nport = outblock->GetOutputPortNum();
                 for (int port=0; port<nport; ++port)
                 {
                     if (GetDownStram(BlkPort(outblock,port)).empty())
                     {
+                        std::cerr << outblock->GetName() << std::endl;
                         throw std::runtime_error("Connection[CheckConn]: an output port has no destination.");
                     }
                 }

@@ -7,7 +7,7 @@
 #include <iostream>
 
 BPSK::BPSK(std::string name)
-    : BasicBlock(name, 1,sizeof(char),1,sizeof(std::complex<float>))
+    : BasicBlock(name, 1,sizeof(char),1,sizeof(float))
 {
 
 }
@@ -32,10 +32,8 @@ int BPSK::work(int noutput, int& ninput, std::vector<const void *> &input, std::
 
     for (int i=0; i<noutput; ++i)
     {
-        out[0] = in[i]==1 ? 1 : -1;
-        out[1] = 0;
-        out += 2;
-        std::cout << (int)in[i] << " ";
+        out[i] = in[i]==1 ? 1 : -1;
+//        std::cout << (int)in[i] << " ";
     }
 
     ninput = noutput;

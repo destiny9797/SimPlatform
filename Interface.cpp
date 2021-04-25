@@ -101,7 +101,7 @@ Interface::~Interface() noexcept
     *_done1 = 1;
     munmap(_base, 2*NITEMS*_sizeof_interface);
     munmap((char*)_writeind, 2*sizeof(int));
-    std::cout << "~Interface()" << std::endl;
+//    std::cout << "~Interface()" << std::endl;
 }
 
 SinkInterface::SinkInterface(spTranState state, std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel)

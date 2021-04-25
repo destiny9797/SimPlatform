@@ -7,10 +7,11 @@
 
 #include "../BasicBlock.h"
 
+template <class T>
 class NullSink : public BasicBlock
 {
 public:
-    NullSink(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem);
+    NullSink(std::string name);
     ~NullSink() override;
 
 private:

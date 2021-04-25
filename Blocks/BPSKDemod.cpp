@@ -7,7 +7,7 @@
 #include <iostream>
 
 BPSKDemod::BPSKDemod(std::string name)
-    : BasicBlock(name, 1,sizeof(std::complex<float>),1,sizeof(char))
+    : BasicBlock(name, 1,sizeof(float),1,sizeof(char))
 {
 
 }
@@ -24,7 +24,7 @@ void BPSKDemod::forecast(int noutput, int &ninput_required)
 
 int BPSKDemod::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
-    const std::complex<float>* in = (const std::complex<float>*)input[0];
+    const float* in = (const float*)input[0];
     char* out = (char*)output[0];
 
     std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
@@ -34,7 +34,7 @@ int BPSKDemod::work(int noutput, int& ninput, std::vector<const void *> &input, 
 
     for (int i=0; i<noutput; ++i)
     {
-        out[i] = in[i].real()>0 ? 1 : 0;
+        out[i] = in[i]>0 ? 1 : 0;
         std::cout << (int)out[i] << " ";
     }
 

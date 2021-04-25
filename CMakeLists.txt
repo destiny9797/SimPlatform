@@ -94,3 +94,74 @@ add_executable(test_receiver
         Blocks/FrameEncap.cpp
         Blocks/FrameSync.cpp
         )
+
+add_executable(test_transmitter
+        test/test_transmitter.cpp
+        TopFlow.cpp
+        BasicBlock.cpp
+        Connection.cpp
+        Buffer.cpp
+        Thread.cpp
+        ThreadPool.cpp
+        Interface.cpp
+        TranState.cpp
+        MsgControl.cpp
+        TaskPool.cpp
+        TaskType.cpp
+
+        Blocks/ConvertByteBit.cpp
+        Blocks/BPSK.cpp
+        Blocks/BPSKDemod.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
+        Blocks/Multiply.cpp
+        Blocks/SRRCFilter.h
+
+        Sources/fxpt.cpp
+        )
+
+add_executable(Tx
+        test/Tx.cpp
+        TopFlow.cpp
+        BasicBlock.cpp
+        Connection.cpp
+        Buffer.cpp
+        Thread.cpp
+        ThreadPool.cpp
+        Interface.cpp
+        TranState.cpp
+        MsgControl.cpp
+        TaskPool.cpp
+        TaskType.cpp
+
+        Blocks/ConvertByteBit.cpp
+        Blocks/BPSK.cpp
+        Blocks/BPSKDemod.cpp
+        Blocks/FrameEncap.cpp
+        Blocks/FrameSync.cpp
+        Blocks/Multiply.cpp
+        Blocks/SRRCFilter.cpp
+        Blocks/FirFilter.cpp
+
+        Sources/fxpt.cpp
+        )
+
+add_executable(Rx
+        test/Rx.cpp
+        TopFlow.cpp
+        BasicBlock.cpp
+        Connection.cpp
+        Buffer.cpp
+        Thread.cpp
+        ThreadPool.cpp
+        Interface.cpp
+        TranState.cpp
+        MsgControl.cpp
+        TaskPool.cpp
+        TaskType.cpp
+
+        Blocks/NullSink.cpp
+        Blocks/FirFilter.cpp
+
+        Sources/fxpt.cpp
+        )

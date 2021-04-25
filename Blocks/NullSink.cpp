@@ -8,26 +8,30 @@
 
 static int num = 1;
 
-NullSink::NullSink(std::string name, int ninput, int sizeofinitem, int noutput, int sizeofoutitem)
-    : BasicBlock(name, ninput, sizeofinitem, noutput, sizeofoutitem)
+template <class T>
+NullSink<T>::NullSink(std::string name)
+    : BasicBlock(name, 1, sizeof(T), 0, 0)
 {
 }
 
-NullSink::~NullSink() noexcept
+template <class T>
+NullSink<T>::~NullSink()
 {
 //    std::cout << "~NullSink()" << std::endl;
 }
 
-void NullSink::forecast(int noutput, int &ninput_required)
+template <class T>
+void NullSink<T>::forecast(int noutput, int &ninput_required)
 {
     ninput_required = noutput / GetInterpolation() * GetDecimation() + GetHistory() - 1;
 }
 
-int NullSink::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
+template <class T>
+int NullSink<T>::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
 {
 
 //    std::cout << "a work : " << noutput << std::endl;
-    const uint8_t* in = (const uint8_t*)input[0];
+    const T* in = (const T*)input[0];
 
 //    int k = 0;
 //    for (int i=0; i<noutput; ++i)
@@ -50,18 +54,18 @@ int NullSink::work(int noutput, int& ninput, std::vector<const void *> &input, s
 
     std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
 
-    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+//    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
 
     for (int i=0; i<noutput; ++i)
     {
 
-        std::cout << (int)in[i] << " ";
-        num++;
-        if (num == 96)
-        {
-            std::cout << std::endl;
-            num = 0;
-        }
+        std::cout << in[i] << " ";
+//        num++;
+//        if (num == 96)
+//        {
+//            std::cout << std::endl;
+//            num = 0;
+//        }
     }
 //    std::cout << std::endl;
 
