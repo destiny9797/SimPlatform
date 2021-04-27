@@ -170,3 +170,6 @@ add_executable(Rx
 
         Sources/fxpt.cpp
         )
+
+add_executable(test_vectorcalc
+        test/test_vectorcalc.cpp)
