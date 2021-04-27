@@ -26,9 +26,9 @@ int BPSK::work(int noutput, int& ninput, std::vector<const void *> &input, std::
     const char* in = (const char*)input[0];
     float* out = (float*)output[0];
 
-    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+//    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
 
-    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+//    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
 
     for (int i=0; i<noutput; ++i)
     {

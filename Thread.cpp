@@ -603,7 +603,7 @@ Thread::State Thread::Work()
         if (_ninput_required > min_avail_data)
         {
             noutput /= 2;
-            noutput_required = noutput_required / _interpolation * _interpolation;
+            noutput = noutput / _interpolation * _interpolation;
         }
         else
             break;
@@ -613,8 +613,17 @@ Thread::State Thread::Work()
 //        std::unique_lock<std::mutex> lk(_smutex);
 //        std::cout << "Thread id: " << std::this_thread::get_id() << ", noutput[after]: " << noutput << std::endl;
 //    }
+    //bug: 这种情况应该属于输入阻塞（输入个数不够）
     if (noutput == 0)
-        return BLKD_OUT;
+    {
+        if (UpBlocksDone(blk))
+        {
+            _done = true;
+            return DONE;
+        }
+        return BLKD_IN;
+    }
+
 
     //假设block的消耗和生产数量相等，如果有插值、采样，要乘除
     //在_blockrun中设置

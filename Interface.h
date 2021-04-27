@@ -71,6 +71,8 @@ protected:
 
     int* _done1;
 
+    int _count;
+
 private:
 
     std::string _fname;

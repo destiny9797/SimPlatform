@@ -12,7 +12,7 @@ FrameSync::FrameSync(std::string name, std::string header)
       _nrshift(0),
       _findheader(false)
 {
-    SetHistory(_headerlen);
+//    SetHistory(_headerlen);
 }
 
 FrameSync::~FrameSync() noexcept
@@ -22,7 +22,7 @@ FrameSync::~FrameSync() noexcept
 
 void FrameSync::forecast(int noutput, int &ninput_required)
 {
-    ninput_required = noutput + GetHistory() - 1;
+    ninput_required = noutput + _headerlen - 1;
 }
 
 int FrameSync::work(int noutput, int& ninput, std::vector<const void *> &input, std::vector<void *> &output)
@@ -30,36 +30,63 @@ int FrameSync::work(int noutput, int& ninput, std::vector<const void *> &input, 
     const uint8_t* in = (const uint8_t*)input[0];
     uint8_t* out = (uint8_t*)output[0];
 
-    int j = 0;
+    int i = 0; //实际读入的个数
+    int k = 0; //实际产生的个数
     int inmap;
-    for (int i=0; i<noutput+GetHistory()-1; ++i)
+    while (i<noutput && k<noutput)
     {
-        if (_nrshift > 0)
+        int correlation = 0;
+        for (int j=0; j<_headerlen; ++j)
         {
-            --_nrshift;
+            assert((i+j)<noutput+_headerlen);
+            inmap = in[i+j]==0 ? -1 : 1;
+            correlation += _header[j]=='1'? inmap : -inmap;
+        }
+        if (correlation>=_headerlen-1 || correlation<=1-_headerlen)
+        {
+            _findheader = true;
+            i += _headerlen;
         }
         else
         {
-            int correlation = 0;
-            for (int j=0; j<GetHistory() && i<noutput; ++j)
+            if (_findheader)
             {
-                inmap = in[i+j]==0 ? -1 : 1;
-                correlation += _header[j]=='1'? inmap : -inmap;
+                out[k] = in[i];
+                ++k;
             }
-            if (correlation >= _headerlen-1 || correlation <= 1-_headerlen){
-                _nrshift = _headerlen-1;
-                _findheader = true;
-            }
-            else if (_findheader)
-            {
-                out[j] = in[i];
-                ++j;
-            }
+            ++i;
         }
-
     }
+//    for (int i=0; i<noutput && k<noutput; ++i)
+//    {
+//        if (_nrshift > 0)
+//        {
+//            --_nrshift;
+//        }
+//        else
+//        {
+//            int correlation = 0;
+//            for (int j=0; j<GetHistory() && i<noutput; ++j)
+//            {
+//                assert((i+j)<noutput+GetHistory()-1);
+//                inmap = in[i+j]==0 ? -1 : 1;
+//                correlation += _header[j]=='1'? inmap : -inmap;
+//            }
+//            if (correlation >= _headerlen-2 || correlation <= 2-_headerlen){
+//                _nrshift = _headerlen-1;
+//                _findheader = true;
+//            }
+//            else if (_findheader)
+//            {
+//                assert(k<noutput);
+//                out[k] = in[i];
+//                ++k;
+//            }
+//        }
+//
+//    }
 
 
-    ninput = noutput;
-    return j;
+    ninput = i;
+    return k;
 }

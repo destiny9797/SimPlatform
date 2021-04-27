@@ -78,7 +78,7 @@ int SRRCFilter::work(int noutput, int& ninput, std::vector<const void *> &input,
     float* out = (float*)output[0];
 
     int inputnum = (noutput+(GetHistory()-1)*GetInterpolation()) / GetInterpolation();
-    std::cout << "inputnum=" << inputnum << ", outputnum=" << noutput << std::endl;
+//    std::cout << "inputnum=" << inputnum << ", outputnum=" << noutput << std::endl;
     std::vector<float> in_itpl(inputnum*GetInterpolation(),0);
     int offset = 0;
     int j = 0;

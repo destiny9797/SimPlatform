@@ -14,7 +14,8 @@
 
 Interface::Interface(std::string fname, int sizeofitem)
     : _fname(fname),
-      _sizeof_interface(sizeofitem)
+      _sizeof_interface(sizeofitem),
+      _count(0)
 {
     _fname = "/Users/zhujiaying/github/SimPlatform/tmp/" + fname;
     int fd = open(_fname.c_str(), O_RDWR | O_CREAT, 0666);
@@ -101,6 +102,7 @@ Interface::~Interface() noexcept
     *_done1 = 1;
     munmap(_base, 2*NITEMS*_sizeof_interface);
     munmap((char*)_writeind, 2*sizeof(int));
+    std::cout << "count=" << _count << std::endl;
 //    std::cout << "~Interface()" << std::endl;
 }
 
@@ -157,6 +159,7 @@ int SinkInterface::work(int noutput, int& ninput, std::vector<const void *> &inp
         }
     }
 
+    _count += noutput;
     ninput = noutput;
     return noutput;
 }
@@ -214,6 +217,7 @@ int SourceInterface::work(int noutput, int& ninput, std::vector<const void *> &i
         }
     }
 
+    _count += noutput;
     ninput = noutput;
     return noutput;
 }

@@ -3,11 +3,13 @@
 //
 
 #include "TaskType.h"
+#include <time.h>
 
 std::queue<spcache> caches;
 
 int randombytes(int noutput, unsigned char* out)
 {
+    srand(time(0));
     for (int i=0; i<noutput; ++i)
     {
         out[i] = rand()%255;

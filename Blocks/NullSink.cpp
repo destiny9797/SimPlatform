@@ -5,6 +5,7 @@
 #include "NullSink.h"
 #include <iostream>
 #include <complex>
+#include <fstream>
 
 static int num = 1;
 
@@ -52,14 +53,18 @@ int NullSink<T>::work(int noutput, int& ninput, std::vector<const void *> &input
 //        num++;
 //    }
 
-    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+//    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
 
 //    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
 
+//    std::ofstream outfile;
     for (int i=0; i<noutput; ++i)
     {
 
-        std::cout << in[i] << " ";
+        std::cout << (int)in[i] << " ";
+//        std::cout << "Write into file ..." << std::endl;
+//        outfile.open("data_prevbs.txt", std::ios::out | std::ios::app | std::ios::binary);
+//        outfile << in[i];
 //        num++;
 //        if (num == 96)
 //        {
@@ -68,6 +73,7 @@ int NullSink<T>::work(int noutput, int& ninput, std::vector<const void *> &input
 //        }
     }
 //    std::cout << std::endl;
+//    outfile.close();
 
     ninput = noutput;
     return noutput;

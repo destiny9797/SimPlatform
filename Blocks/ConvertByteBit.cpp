@@ -3,6 +3,7 @@
 //
 
 #include "ConvertByteBit.h"
+#include <iostream>
 
 ConvertByteBit::ConvertByteBit(std::string name, bool byte_to_bit)
     : BasicBlock(name, 1,sizeof(uint8_t),1,sizeof(uint8_t)),
@@ -40,6 +41,7 @@ int ConvertByteBit::work(int noutput, int& ninput, std::vector<const void *> &in
                 //左边的bit先输出
                 out[j] = (abyte & 0x80) >> 7;
                 abyte <<= 1;
+                std::cout << (int)out[j] << " ";
             }
         }
     }

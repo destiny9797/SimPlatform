@@ -27,18 +27,18 @@ int BPSKDemod::work(int noutput, int& ninput, std::vector<const void *> &input, 
     const float* in = (const float*)input[0];
     char* out = (char*)output[0];
 
-    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
+//    std::unique_lock<std::mutex> lk(BasicBlock::_blockmutex);
 
-    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
-    std::cout << "noutput= " << noutput << std::endl;
+//    std::cout << "thread: " << std::this_thread::get_id() << std::endl;
+//    std::cout << "noutput= " << noutput << std::endl;
 
     for (int i=0; i<noutput; ++i)
     {
         out[i] = in[i]>0 ? 1 : 0;
-        std::cout << (int)out[i] << " ";
+//        std::cout << (int)out[i] << " ";
     }
 
-    std::cout << std::endl;
+//    std::cout << std::endl;
     ninput = noutput;
     return noutput;
 }

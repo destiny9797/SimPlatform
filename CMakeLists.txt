@@ -162,6 +162,11 @@ add_executable(Rx
 
         Blocks/NullSink.cpp
         Blocks/FirFilter.cpp
+        Blocks/BPSKDemod.cpp
+        Blocks/ConvertByteBit.cpp
+        Blocks/Decimator.cpp
+        Blocks/BitsyncMM.cpp
+        Blocks/FrameSync.cpp
 
         Sources/fxpt.cpp
         )

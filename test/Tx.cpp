@@ -201,15 +201,15 @@ int main(int argc, char* argv[])
     spBasicBlock frameencap = std::make_shared<FrameEncap>("header","1111100110101", 96);
     spBasicBlock bpsk_mod = std::make_shared<BPSK>("bpsk_mod");
     spBasicBlock srrc = std::make_shared<SRRCFilter>("srrc",
-                                                     10,
-                                                     0.35,
+                                                     80,
+                                                     0.05,
                                                      15,
-                                                     10);
-    spBasicBlock filter = std::make_shared<FirFilter>("srrc",srrctaps);
+                                                     80);
+//    spBasicBlock filter = std::make_shared<FirFilter>("srrc",srrctaps);
     spBasicBlock sine = std::make_shared<sig_source<float>>("sine",
-                                                            4e3,
+                                                            80e3,
                                                             SIN_WAVE,
-                                                            1e3,
+                                                            20e3,
                                                             1.0);
     spBasicBlock multiply = std::make_shared<Multiply<float>>("multiply");
 
