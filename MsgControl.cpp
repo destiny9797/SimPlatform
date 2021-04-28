@@ -6,9 +6,8 @@
 #include "TaskType.h"
 #include <iostream>
 
-MsgGenerater::MsgGenerater(spTranState state)
-    : BasicBlock("MsgGen",0,0,1,sizeof(uint8_t)),
-      _transtate(state)
+MsgGenerater::MsgGenerater()
+    : BasicBlock("MsgGen",0,0,1,sizeof(uint8_t))
 {
     SetType(MSGGEN);
 }
@@ -40,9 +39,8 @@ int MsgGenerater::work(int noutput, int& ninput, std::vector<const void *> &inpu
     return nproduce;
 }
 
-MsgParser::MsgParser(spTranState state)
-    : BasicBlock("MsgParser",1,sizeof(uint8_t),0,0),
-      _transtate(state)
+MsgParser::MsgParser()
+    : BasicBlock("MsgParser",1,sizeof(uint8_t),0,0)
 {
     SetType(MSGPARSER);
 }

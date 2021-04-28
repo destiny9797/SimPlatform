@@ -103,64 +103,71 @@ void Thread::Scheduler()
                     //不通知收进程
                     break;
                 case BLKD_IN:
-                    //sink不应该被阻塞
-                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
-                    sleep(1);
-                    //bug:如果下面这个返回DONE，就永远进不了DONE
-                    tmp = SinkWork(spSinkblk);
-                    if (tmp == BLKD_IN)
+                    //如果有接收模式，才切换，否则再次读输入
+                    if (!spSinkblk->NoRx())
                     {
-                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
-                        TopFlow::_apicond.notify_one();
-                    }
-                    else if (tmp == READY)
-                    {
-                        NotifyUpblocks(spSinkblk);
-                    }
-                    else if (tmp == BLKD_OUT)
-                    {
+                        //sink不应该被阻塞
+                        //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
+                        sleep(1);
+                        //bug:如果下面这个返回DONE，就永远进不了DONE
+                        tmp = SinkWork(spSinkblk);
+                        if (tmp == BLKD_IN)
+                        {
+                            spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                            TopFlow::_apicond.notify_one();
+                        }
+                        else if (tmp == READY)
+                        {
+                            NotifyUpblocks(spSinkblk);
+                        }
+                        else if (tmp == BLKD_OUT)
+                        {
 
-                    }
-                    else if (tmp == DONE)
-                    {
-                        NotifyUpblocks(spSinkblk);
-                        //通知收进程已完成
-                        spSinkblk->SetDone();
-                        //唤醒收链路
-                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
-                        TopFlow::_apicond.notify_one();
-                        return;
+                        }
+                        else if (tmp == DONE)
+                        {
+                            NotifyUpblocks(spSinkblk);
+                            //通知收进程已完成
+                            spSinkblk->SetDone();
+                            //唤醒收链路
+                            spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                            TopFlow::_apicond.notify_one();
+                            return;
+                        }
                     }
                     break;
                 case BLKD_OUT:
-                    //不断检查输出buffer有没有空位
-                    //bug：如果双方都在发送，一直不读，会一直卡在这，以下解决这个问题
-                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
-                    sleep(1);
-                    //bug:如果下面这个返回DONE，就永远进不了DONE
-                    tmp = SinkWork(spSinkblk);
-                    if (tmp == BLKD_IN)
+                    if (!spSinkblk->NoRx())
                     {
+                        //不断检查输出buffer有没有空位
+                        //bug：如果双方都在发送，一直不读，会一直卡在这，以下解决这个问题
+                        //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入RECEIVE状态
+                        sleep(1);
+                        //bug:如果下面这个返回DONE，就永远进不了DONE
+                        tmp = SinkWork(spSinkblk);
+                        if (tmp == BLKD_IN)
+                        {
 
-                    }
-                    else if (tmp == READY)
-                    {
-                        NotifyUpblocks(spSinkblk);
-                    }
-                    else if (tmp == BLKD_OUT)
-                    {
-                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
-                        TopFlow::_apicond.notify_one();
-                    }
-                    else if (tmp == DONE)
-                    {
-                        NotifyUpblocks(spSinkblk);
-                        //通知收进程已完成
-                        spSinkblk->SetDone();
-                        //唤醒收链路
-                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
-                        TopFlow::_apicond.notify_one();
-                        return;
+                        }
+                        else if (tmp == READY)
+                        {
+                            NotifyUpblocks(spSinkblk);
+                        }
+                        else if (tmp == BLKD_OUT)
+                        {
+                            spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                            TopFlow::_apicond.notify_one();
+                        }
+                        else if (tmp == DONE)
+                        {
+                            NotifyUpblocks(spSinkblk);
+                            //通知收进程已完成
+                            spSinkblk->SetDone();
+                            //唤醒收链路
+                            spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                            TopFlow::_apicond.notify_one();
+                            return;
+                        }
                     }
                     break;
                 case DONE:
@@ -168,8 +175,11 @@ void Thread::Scheduler()
                     //通知收进程已完成
                     spSinkblk->SetDone();
                     //唤醒收链路
-                    spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
-                    TopFlow::_apicond.notify_one();
+                    if (!spSinkblk->NoRx())
+                    {
+                        spSinkblk->GetTranstate()->SetTranState(TranState::RECEIVE);
+                        TopFlow::_apicond.notify_one();
+                    }
                     return;
 
                 default:
@@ -203,32 +213,35 @@ void Thread::Scheduler()
                     NotifyDownblocks(spSourceblk);
                     break;
                 case BLKD_IN:
-                    //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入SEND状态
-                    sleep(1);
-                    //bug:如果下面这个返回DONE，就永远进不了DONE
-                    tmp = SourceWork(spSourceblk);
-                    if (tmp == BLKD_IN)
+                    if (!spSourceblk->NoTx())
                     {
-                        spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
-                        TopFlow::_apicond.notify_one();
-                    }
-                    else if (tmp == READY)
-                    {
-                        NotifyDownblocks(spSourceblk);
-                    }
-                    else if (tmp == BLKD_OUT)
-                    {
-                        
-                    }
-                    else if (tmp == DONE)
-                    {
-                        NotifyDownblocks(spSourceblk);
-                        //将共享内存的_done标志设为1，通知另一个进程
-                        spSourceblk->SetDone();
-                        //唤醒发链路
-                        spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
-                        TopFlow::_apicond.notify_one();
-                        return;
+                        //休息1s，再次检查是否有新数据到来，如果还是没有，认为读完了，进入SEND状态
+                        sleep(1);
+                        //bug:如果下面这个返回DONE，就永远进不了DONE
+                        tmp = SourceWork(spSourceblk);
+                        if (tmp == BLKD_IN)
+                        {
+                            spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                            TopFlow::_apicond.notify_one();
+                        }
+                        else if (tmp == READY)
+                        {
+                            NotifyDownblocks(spSourceblk);
+                        }
+                        else if (tmp == BLKD_OUT)
+                        {
+
+                        }
+                        else if (tmp == DONE)
+                        {
+                            NotifyDownblocks(spSourceblk);
+                            //将共享内存的_done标志设为1，通知另一个进程
+                            spSourceblk->SetDone();
+                            //唤醒发链路
+                            spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                            TopFlow::_apicond.notify_one();
+                            return;
+                        }
                     }
                     break;
                 case BLKD_OUT:
@@ -239,8 +252,11 @@ void Thread::Scheduler()
                     //将共享内存的_done标志设为1，通知另一个进程
                     spSourceblk->SetDone();
                     //唤醒发链路
-                    spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
-                    TopFlow::_apicond.notify_one();
+                    if (!spSourceblk->NoTx())
+                    {
+                        spSourceblk->GetTranstate()->SetTranState(TranState::SEND);
+                        TopFlow::_apicond.notify_one();
+                    }
                     return;
 
                 default:

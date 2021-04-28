@@ -34,23 +34,23 @@ int main(int argc, char* argv[])
     spBasicBlock sourceapi = std::make_shared<SourceInterface>(
             spstate,
             "AtoB",
-            sizeof(float));
+            sizeof(float),
+            Interface::TxRx_HalfD);
 
     spBasicBlock sinkapi = std::make_shared<SinkInterface>(
             spstate,
             "BtoA",
             sizeof(float),
-            SinkInterface::AWGN,
-            SinkInterface::Rayleigh);
+            Interface::TxRx_HalfD);
 
 
-    spBasicBlock msg = std::make_shared<MsgGenerater>(spstate);
+    spBasicBlock msg = std::make_shared<MsgGenerater>();
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>("byte_to_bit");
     spBasicBlock bpsk_mod = std::make_shared<BPSK>("bpsk_mod");
 
     spBasicBlock bpsk_demod = std::make_shared<BPSKDemod>("bpsk_demod");
     spBasicBlock bit_to_byte = std::make_shared<ConvertByteBit>("bit_to_byte",false);
-    spBasicBlock msgparser = std::make_shared<MsgParser>(spstate);
+    spBasicBlock msgparser = std::make_shared<MsgParser>();
 
     topflow.Connect(msg,0,byte_to_bit,0);
     topflow.Connect(byte_to_bit,0,bpsk_mod,0);

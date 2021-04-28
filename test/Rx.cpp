@@ -37,13 +37,28 @@ int main(int argc, char* argv[])
     signal(SIGINT,signal_handler);
     signal(SIGHUP,signal_handler);
 
+    std::string fname = "ssmm";
+    std::string myname = "B";
+    std::string partnername = "A";
 
-    std::shared_ptr<TranState> spstate = std::make_shared<TranState>(TranState::RECEIVE);
+    if (argc > 1)
+    {
+        fname = argv[1];
+    }
+    if (argc > 3)
+    {
+        myname = argv[2];
+        partnername = argv[3];
+    }
 
-    spBasicBlock sourceapi = std::make_shared<SourceInterface>(
-            spstate,
-            "AtoB",
-            sizeof(float));
+//    std::shared_ptr<TranState> spstate = std::make_shared<TranState>(TranState::RECEIVE);
+//
+//    spBasicBlock sourceapi = std::make_shared<SourceInterface>(
+//            spstate,
+//            "AtoB",
+//            sizeof(float));
+
+    MakeInterface api(Interface::TxRx_HalfD,fname,myname,partnername,sizeof(float));
 
     spBasicBlock sine = std::make_shared<sig_source<float>>("sine",
                                                             80e3,
@@ -71,7 +86,7 @@ int main(int argc, char* argv[])
 
 
 
-    topflow.Connect(sourceapi,0,multiply,0);
+    topflow.Connect(api.GetSource(),0,multiply,0);
     topflow.Connect(sine,0,multiply,1);
     topflow.Connect(multiply,0,lowpass,0);
     topflow.Connect(lowpass,0,decimator1,0);

@@ -12,10 +12,11 @@
 
 #define NITEMS ( 8 * (1L<<10) )
 
-Interface::Interface(std::string fname, int sizeofitem)
+Interface::Interface(std::string fname, int sizeofitem, CommMode mode)
     : _fname(fname),
       _sizeof_interface(sizeofitem),
-      _count(0)
+      _count(0),
+      _mode(mode)
 {
     _fname = "/Users/zhujiaying/github/SimPlatform/tmp/" + fname;
     int fd = open(_fname.c_str(), O_RDWR | O_CREAT, 0666);
@@ -72,26 +73,31 @@ Interface::Interface(std::string fname, int sizeofitem)
     _base = (char*)firstcopy;
     close(fd);
 
-    std::string rwpfilename = "/Users/zhujiaying/github/SimPlatform/tmp/rw_index" + fname;
+    std::string rwpfilename = "/Users/zhujiaying/github/SimPlatform/tmp/rw_index_" + fname;
     fd = open(rwpfilename.c_str(), O_RDWR | O_CREAT, 0666);
     if (fd == -1)
     {
         perror("open shared file failed :");
         throw std::runtime_error("Interface[Interface]: open rw_index file failed.");
     }
-    if (ftruncate(fd, (off_t)(3*sizeof(int))) == -1)
+    if (ftruncate(fd, (off_t)(4*sizeof(int))) == -1)
     {
         close(fd);
         throw std::runtime_error("Interface[Interface]: ftruncate rw_index to 8 bytes failed.");
     }
-    void* rwpointer = mmap(NULL, 3*sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
+    void* rwpointer = mmap(NULL, 4*sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED, fd, (off_t)0);
     _writeind = (int*)rwpointer;
     _readind = (int*)rwpointer+1;
     _done1 = (int*)rwpointer+2;
+    _opened = (int*)rwpointer+3;
 
-    *_writeind = 0;
-    *_readind = 0;
-    *_done1 = 0;
+    if (*_opened != 1)
+    {
+        *_writeind = 0;
+        *_readind = 0;
+        *_done1 = 0;
+    }
+    *_opened = 1;
 
     _bufsize = NITEMS;
     close(fd);
@@ -100,39 +106,40 @@ Interface::Interface(std::string fname, int sizeofitem)
 Interface::~Interface() noexcept
 {
     *_done1 = 1;
+    *_opened = 0;
     munmap(_base, 2*NITEMS*_sizeof_interface);
     munmap((char*)_writeind, 2*sizeof(int));
     std::cout << "count=" << _count << std::endl;
 //    std::cout << "~Interface()" << std::endl;
 }
 
-SinkInterface::SinkInterface(spTranState state, std::string fname, int sizeofitem, noise_model noisemodel, fade_model fademodel)
+SinkInterface::SinkInterface(spTranState state, std::string fname, int sizeofitem, CommMode mode)
     : BasicBlock("SinkApi",1,sizeofitem,1,sizeofitem),
-      Interface(fname, sizeofitem),
+      Interface(fname, sizeofitem, mode),
       _transtate(state)
 {
     SetType(SINKAPI);
-    std::string sem1_name = fname + "_1";
-    std::string sem2_name = fname + "_2";
-    sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);
-    sem_t* sem2 = sem_open(sem2_name.c_str(), O_CREAT, 0666, 0);
-    if (sem1 == SEM_FAILED)
-    {
-        perror("sem1 open error");
-        throw std::runtime_error("Interface[Interface]: sem_open 1 failed.");
-    }
-    if (sem2 == SEM_FAILED)
-    {
-        perror("sem2 open error");
-        throw std::runtime_error("Interface[Interface]: sem_open 2 failed.");
-    }
-    sem_post(sem1);
-    sem_wait(sem2);
-
-    sem_close(sem1);
-    sem_close(sem2);
-    sem_unlink(sem1_name.c_str());
-    sem_unlink(sem2_name.c_str());
+//    std::string sem1_name = fname + "_1";
+//    std::string sem2_name = fname + "_2";
+//    sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);
+//    sem_t* sem2 = sem_open(sem2_name.c_str(), O_CREAT, 0666, 0);
+//    if (sem1 == SEM_FAILED)
+//    {
+//        perror("sem1 open error");
+//        throw std::runtime_error("Interface[Interface]: sem_open 1 failed.");
+//    }
+//    if (sem2 == SEM_FAILED)
+//    {
+//        perror("sem2 open error");
+//        throw std::runtime_error("Interface[Interface]: sem_open 2 failed.");
+//    }
+//    sem_post(sem1);
+//    sem_wait(sem2);
+//
+//    sem_close(sem1);
+//    sem_close(sem2);
+//    sem_unlink(sem1_name.c_str());
+//    sem_unlink(sem2_name.c_str());
 }
 
 SinkInterface::~SinkInterface() noexcept {}
@@ -164,33 +171,33 @@ int SinkInterface::work(int noutput, int& ninput, std::vector<const void *> &inp
     return noutput;
 }
 
-SourceInterface::SourceInterface(spTranState state, std::string fname, int sizeofitem)
+SourceInterface::SourceInterface(spTranState state, std::string fname, int sizeofitem, CommMode mode)
     : BasicBlock("SourceApi",1,sizeofitem,1,sizeofitem),
-      Interface(fname, sizeofitem),
+      Interface(fname, sizeofitem, mode),
       _transtate(state)
 {
     SetType(SOURCEAPI);
-    std::string sem1_name = fname + "_1";
-    std::string sem2_name = fname + "_2";
-    sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);
-    sem_t* sem2 = sem_open(sem2_name.c_str(), O_CREAT, 0666, 0);
-    if (sem1 == SEM_FAILED)
-    {
-        perror("sem1 open error");
-        throw std::runtime_error("Interface[Interface]: sem_open 1 failed.");
-    }
-    if (sem2 == SEM_FAILED)
-    {
-        perror("sem2 open error");
-        throw std::runtime_error("Interface[Interface]: sem_open 2 failed.");
-    }
-    sem_post(sem2);
-    sem_wait(sem1);
-
-    sem_close(sem1);
-    sem_close(sem2);
-    sem_unlink(sem1_name.c_str());
-    sem_unlink(sem2_name.c_str());
+//    std::string sem1_name = fname + "_1";
+//    std::string sem2_name = fname + "_2";
+//    sem_t* sem1 = sem_open(sem1_name.c_str(), O_CREAT, 0666, 0);
+//    sem_t* sem2 = sem_open(sem2_name.c_str(), O_CREAT, 0666, 0);
+//    if (sem1 == SEM_FAILED)
+//    {
+//        perror("sem1 open error");
+//        throw std::runtime_error("Interface[Interface]: sem_open 1 failed.");
+//    }
+//    if (sem2 == SEM_FAILED)
+//    {
+//        perror("sem2 open error");
+//        throw std::runtime_error("Interface[Interface]: sem_open 2 failed.");
+//    }
+//    sem_post(sem2);
+//    sem_wait(sem1);
+//
+//    sem_close(sem1);
+//    sem_close(sem2);
+//    sem_unlink(sem1_name.c_str());
+//    sem_unlink(sem2_name.c_str());
 }
 
 SourceInterface::~SourceInterface() noexcept {}

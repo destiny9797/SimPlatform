@@ -28,36 +28,36 @@ protected:
 class MsgGenerater : public MsgControl
 {
 public:
-    MsgGenerater(spTranState state);
+    MsgGenerater();
 
     ~MsgGenerater();
 
-    spTranState GetTranstate(){ return _transtate; }
+//    spTranState GetTranstate(){ return _transtate; }
 
 private:
     void forecast(int noutput, int& ninput_required) override;
 
     int work(int noutput, int& ninput, std::vector<const void*>& input, std::vector<void*>& output) override;
 
-    spTranState _transtate;
+//    spTranState _transtate;
 
 };
 
 class MsgParser : public MsgControl
 {
 public:
-    MsgParser(spTranState state);
+    MsgParser();
 
     ~MsgParser();
 
-    spTranState GetTranstate(){ return _transtate; }
+//    spTranState GetTranstate(){ return _transtate; }
 
 private:
     void forecast(int noutput, int& ninput_required) override;
 
     int work(int noutput, int& ninput, std::vector<const void*>& input, std::vector<void*>& output) override;
 
-    spTranState _transtate;
+//    spTranState _transtate;
 };
 
 #endif //SIMPLATFORM_MSGCONTROL_H
