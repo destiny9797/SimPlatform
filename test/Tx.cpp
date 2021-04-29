@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 //            spstate,
 //            "AtoB",
 //            sizeof(float));
-    MakeInterface api(Interface::TxRx_HalfD,fname,myname,partnername,sizeof(float));
+    MakeInterface api(Interface::Tx,fname,myname,partnername,sizeof(float));
 
     spBasicBlock msg = std::make_shared<MsgGenerater>();
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>("byte_to_bit");

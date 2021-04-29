@@ -49,6 +49,8 @@ private:
     //为每个block设置线程，加入线程池
     void MakeThread();
 
+    void ClearTmpfile(const char* path);
+
     Connection _connections;
 
     TaskPool _taskpool;

@@ -20,6 +20,7 @@
 #include "../Blocks/FrameSync.h"
 #include <complex>
 
+
 typedef std::shared_ptr<BasicBlock> spBasicBlock;
 
 TopFlow topflow;
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
 //            "AtoB",
 //            sizeof(float));
 
-    MakeInterface api(Interface::TxRx_HalfD,fname,myname,partnername,sizeof(float));
+    MakeInterface api(Interface::Rx,fname,myname,partnername,sizeof(float));
 
     spBasicBlock sine = std::make_shared<sig_source<float>>("sine",
                                                             80e3,

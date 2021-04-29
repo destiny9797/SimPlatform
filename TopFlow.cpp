@@ -5,6 +5,12 @@
 #include "TopFlow.h"
 #include "MsgControl.h"
 
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+
 
 std::mutex TopFlow::_apimutex;
 std::condition_variable TopFlow::_apicond;
@@ -20,7 +26,38 @@ TopFlow::TopFlow()
 
 TopFlow::~TopFlow()
 {
+    ClearTmpfile("/Users/zhujiaying/github/SimPlatform/tmp/");
 //    std::cout << "~TopFLow()" << std::endl;
+}
+
+void TopFlow::ClearTmpfile(const char* path)
+{
+
+    DIR *dir;
+    struct dirent *dirinfo;
+    struct stat statbuf;
+    char filepath[256] = {0};
+    lstat(path, &statbuf);
+
+
+    if ((dir = opendir(path)) == NULL)
+        return;
+    while ((dirinfo = readdir(dir)) != NULL)
+    {
+        const char* filename = dirinfo->d_name;
+        if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0)//判断是否是特殊目录
+            continue;
+        if (strlen(filename)>=3 && filename[0]=='v' && filename[1]=='m' && filename[2]=='-')
+        {
+            strcpy(filepath,path);
+            if(filepath[strlen(path) - 1] != '/')
+                strcat(filepath, "/");
+            strcat(filepath, dirinfo->d_name);
+            printf("path is = %s\n",filepath);
+            remove(filepath);
+        }
+    }
+    closedir(dir);
 }
 
 
