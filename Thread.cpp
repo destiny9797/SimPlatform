@@ -13,7 +13,7 @@
 #include <time.h>
 
 
-static std::mutex _smutex;
+//static std::mutex _smutex;
 
 
 Thread::Thread(wpBasicBlock block)
@@ -672,8 +672,6 @@ void Thread::NotifyUpblocks(spBasicBlock blk)
 //        _notify(_block->GetInbuffer(i)->GetBuffer()->GetBlock(), false);
 //        _block->GetInbuffer(i)->GetBuffer()->GetBlock()->GetThread()->SetOutchanged();
     }
-
-
 }
 
 void Thread::NotifyDownblocks(spBasicBlock blk)
@@ -693,16 +691,18 @@ void Thread::NotifyDownblocks(spBasicBlock blk)
 
 bool Thread::UpBlocksDone(spBasicBlock blk)
 {
-    //UpBlocks有一个结束了，就认为我也结束了
+    //UpBlocks都结束了，就认为我也结束了
     //bug:如果对没有UpBlock的模块调用，应该返回false
     if (_ninport <= 0)
         return false;
     for (int i=0; i<_ninport; ++i)
     {
-        if (blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
-            return true;
+        if (!blk->GetInbuffer(i)->GetBuffer().lock()->GetBlock().lock()->Done())
+        {
+            return false;
+        }
     }
-    return false;
+    return true;
 }
 
 bool Thread::DownBlocksDone(spBasicBlock blk)

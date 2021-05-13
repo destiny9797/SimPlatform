@@ -23,7 +23,6 @@ add_executable(test_bpsk
         Blocks/ConvertByteBit.cpp
         Blocks/BPSK.cpp
         Blocks/BPSKDemod.cpp
-        Blocks/AWGNChannel.cpp
         Blocks/BER.cpp
         Blocks/FrameEncap.cpp
         Blocks/FrameSync.cpp

@@ -45,7 +45,11 @@ void Buffer::AllocateBuffer(int nitems, int sizeofitem)
     int size = nitems * sizeofitem;
 
     static int s_buffer_counter = 0;
-    std::string buffer_name = "/Users/zhujiaying/github/SimPlatform/tmp/vm-" +
+    char* pathname = getcwd(NULL, 0);
+    if (pathname == NULL){
+        std::runtime_error("Buffer[AllocateBuffer]: Wrong path.");
+    }
+    std::string buffer_name = std::string(pathname) + "/../tmp/vm-" +
                                 std::to_string(getpid()) + "-" + std::to_string(s_buffer_counter);
     s_buffer_counter++;
 

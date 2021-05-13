@@ -22,10 +22,16 @@
 cd SimPlatform
 mkdir tmp
 mkdir build
+cd build
 cmake ../
 make
-./test_bpsk
 ```
+
+```Shell
+./test_bpsk 5 10000
+```
+
+​	其中，5表示信噪比，10000表示字节数，可自己设置
 
 - 收发端
 
@@ -91,5 +97,3 @@ make
 
 - 整理和改善类的继承关系
 - 构建简易的MAC层及以上协议栈，扩展Task种类
-- 物理层中帧同步的假同步问题需要解决
-- 封装库

@@ -18,7 +18,11 @@ Interface::Interface(std::string fname, int sizeofitem, CommMode mode)
       _count(0),
       _mode(mode)
 {
-    _fname = "/Users/zhujiaying/github/SimPlatform/tmp/vm-" + fname;
+    char* pathname = getcwd(NULL,0);
+    if (pathname == NULL){
+        std::runtime_error("Interface[Interface]: Wrong path.");
+    }
+    _fname = std::string(pathname) + "/../tmp/vm-" + fname;
     int fd = open(_fname.c_str(), O_RDWR | O_CREAT, 0666);
     if (fd == -1)
     {
@@ -73,7 +77,7 @@ Interface::Interface(std::string fname, int sizeofitem, CommMode mode)
     _base = (char*)firstcopy;
     close(fd);
 
-    std::string rwpfilename = "/Users/zhujiaying/github/SimPlatform/tmp/vm-rw_index_" + fname;
+    std::string rwpfilename = std::string(pathname) + "/../tmp/vm-rw_index_" + fname;
     fd = open(rwpfilename.c_str(), O_RDWR | O_CREAT, 0666);
     if (fd == -1)
     {
