@@ -1,18 +1,7 @@
-/* -*- c++ -*- */
-/*
- * Copyright 2004,2011,2012,2014 Free Software Foundation, Inc.
- *
- * This file is part of GNU Radio
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *
- */
 
-#ifndef INCLUDED_BITSYNCMM_H
-#define INCLUDED_BITSYNCMM_H
+#ifndef SIMPLATFORM_BITSYNCMM_H
+#define SIMPLATFORM_BITSYNCMM_H
 
-//#include <gnuradio/digital/clock_recovery_mm_ff.h>
-//#include <gnuradio/filter/mmse_fir_interpolator_ff.h>
 #include "../BasicBlock.h"
 
 
@@ -62,4 +51,4 @@ private:
 };
 
 
-#endif /* INCLUDED_BITSYNCMM_H */
+#endif /* SIMPLATFORM_BITSYNCMM_H */

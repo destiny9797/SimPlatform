@@ -1,0 +1,16 @@
+
+#ifndef INCLUDED_SIG_SOURCE_WAVEFORM_H
+#define INCLUDED_SIG_SOURCE_WAVEFORM_H
+
+
+typedef enum {
+    CONST_WAVE = 100,
+    SIN_WAVE,
+    COS_WAVE,
+    SQR_WAVE,
+    TRI_WAVE,
+    SAW_WAVE
+} waveform_t;
+
+
+#endif /* INCLUDED_SIG_SOURCE_WAVEFORM_H */

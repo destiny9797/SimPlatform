@@ -11,7 +11,7 @@
 #include "../TaskType.h"
 #include "../Blocks/ConvertByteBit.h"
 #include "../Blocks/BPSKDemod.h"
-#include "../Sources/sig_source.h"
+#include "../SourceBlocks/sig_source.h"
 #include "../Blocks/Multiply.cpp"
 #include "../Blocks/NullSink.cpp"
 #include "../Blocks/FirFilter.h"

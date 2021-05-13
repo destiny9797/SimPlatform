@@ -53,7 +53,7 @@ void TopFlow::ClearTmpfile(const char* path)
             if(filepath[strlen(path) - 1] != '/')
                 strcat(filepath, "/");
             strcat(filepath, dirinfo->d_name);
-            printf("path is = %s\n",filepath);
+            printf("Cleaning tmp files... path is = %s\n",filepath);
             remove(filepath);
         }
     }

@@ -4,6 +4,7 @@
 
 #include "TaskType.h"
 #include <time.h>
+#include <iostream>
 
 std::queue<spcache> caches;
 
@@ -13,6 +14,7 @@ int randombytes(int noutput, unsigned char* out)
     for (int i=0; i<noutput; ++i)
     {
         out[i] = rand()%255;
+        std::cout << (int)out[i] << " ";
     }
     return noutput;
 }

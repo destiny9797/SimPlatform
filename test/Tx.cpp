@@ -11,7 +11,7 @@
 #include "../Blocks/BPSK.h"
 #include "../Blocks/ConvertByteBit.h"
 #include "../Blocks/FrameEncap.h"
-#include "../Sources/sig_source.h"
+#include "../SourceBlocks/sig_source.h"
 #include "../Blocks/Multiply.cpp"
 #include "../Blocks/SRRCFilter.h"
 #include "../Blocks/FirFilter.h"

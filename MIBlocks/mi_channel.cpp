@@ -29,6 +29,7 @@
 #include <volk/volk.h>
 #include "MI_Communication/coord_transfer.h"
 #include "mi_channel.h"
+#include "../VectorCalc.h"
 
 
 
@@ -189,16 +190,16 @@ mi_channel::general_work (int noutput_items,
 
         // use volk to speed up the calculaiton
         unsigned int NN = history();
-        lv_32fc_t tmp11,tmp21,tmp31,tmp12,tmp22,tmp32,tmp13,tmp23,tmp33;
-        volk_32fc_x2_dot_prod_32fc(&tmp11,in1+i,dp_h[0],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp21,in2+i,dp_h[3],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp31,in3+i,dp_h[6],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp12,in1+i,dp_h[1],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp22,in2+i,dp_h[4],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp32,in3+i,dp_h[7],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp13,in1+i,dp_h[2],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp23,in2+i,dp_h[5],NN);
-        volk_32fc_x2_dot_prod_32fc(&tmp33,in3+i,dp_h[8],NN);
+        std::complex<float> tmp11,tmp21,tmp31,tmp12,tmp22,tmp32,tmp13,tmp23,tmp33;
+        fc_prod_fc(&tmp11,in1+i,dp_h[0],NN);
+        fc_prod_fc(&tmp21,in2+i,dp_h[3],NN);
+        fc_prod_fc(&tmp31,in3+i,dp_h[6],NN);
+        fc_prod_fc(&tmp12,in1+i,dp_h[1],NN);
+        fc_prod_fc(&tmp22,in2+i,dp_h[4],NN);
+        fc_prod_fc(&tmp32,in3+i,dp_h[7],NN);
+        fc_prod_fc(&tmp13,in1+i,dp_h[2],NN);
+        fc_prod_fc(&tmp23,in2+i,dp_h[5],NN);
+        fc_prod_fc(&tmp33,in3+i,dp_h[8],NN);
 
         out1[i] = tmp11 + tmp21 + tmp31;
         out2[i] = tmp12 + tmp22 + tmp32;

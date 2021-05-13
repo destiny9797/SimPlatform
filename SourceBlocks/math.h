@@ -1,16 +1,3 @@
-/* -*- c++ -*- */
-/*
- * Copyright 2003,2005,2008,2013,2018 Free Software Foundation, Inc.
- *
- * This file is part of GNU Radio
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *
- */
-
-/*
- * mathematical odds and ends.
- */
 
 #ifndef _MATH_H_
 #define _MATH_H_
@@ -18,15 +5,6 @@
 #include <cmath>
 #include <complex>
 
-/*
- * \brief Define commonly used mathematical constants
- * \ingroup misc
- *
- * Mathematical constants are neither defined in the C standard
- * nor the C++ standard. For -std=c{++}11 M_LOG2E and M_SQRT2 won't
- * compile. M_PI actually works with C++ but is defined here for the sake
- * of consistency.
- */
 
 #define M_PI 3.14159265358979323846    /* pi */
 #define M_SQRT2 1.41421356237309504880 /* sqrt(2) */

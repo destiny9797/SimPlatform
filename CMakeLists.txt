@@ -117,7 +117,7 @@ add_executable(test_transmitter
         Blocks/Multiply.cpp
         Blocks/SRRCFilter.h
 
-        Sources/fxpt.cpp
+        SourceBlocks/fxpt.cpp
         )
 
 add_executable(Tx
@@ -143,7 +143,7 @@ add_executable(Tx
         Blocks/SRRCFilter.cpp
         Blocks/FirFilter.cpp
 
-        Sources/fxpt.cpp
+        SourceBlocks/fxpt.cpp
         )
 
 add_executable(Rx
@@ -168,8 +168,9 @@ add_executable(Rx
         Blocks/BitsyncMM.cpp
         Blocks/FrameSync.cpp
 
-        Sources/fxpt.cpp
+        SourceBlocks/fxpt.cpp
         )
 
 add_executable(test_vectorcalc
-        test/test_vectorcalc.cpp)
+        test/test_vectorcalc.cpp
+        VectorCalc.cpp)

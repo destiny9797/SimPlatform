@@ -41,7 +41,7 @@ int ConvertByteBit::work(int noutput, int& ninput, std::vector<const void *> &in
                 //左边的bit先输出
                 out[j] = (abyte & 0x80) >> 7;
                 abyte <<= 1;
-                std::cout << (int)out[j] << " ";
+//                std::cout << (int)out[j] << " ";
             }
         }
     }

@@ -1,16 +1,6 @@
-/* -*- c++ -*- */
-/*
- * Copyright 2004,2010-2012,2014 Free Software Foundation, Inc.
- *
- * This file is part of GNU Radio
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *
- */
-
 
 #include "BitsyncMM.h"
-#include "../Sources/math.h"
+#include "../SourceBlocks/math.h"
 #include "interpolator_taps.h"
 #include <stdexcept>
 

@@ -9,8 +9,6 @@
 #include "../MsgControl.h"
 #include "../TaskType.h"
 #include "../Blocks/ConvertByteBit.h"
-#include "../Blocks/FrameEncap.h"
-#include "../Blocks/FrameSync.h"
 #include "../Blocks/BPSK.h"
 #include "../Blocks/BPSKDemod.h"
 #include <complex>
@@ -48,7 +46,6 @@ int main(int argc, char* argv[])
 
     spBasicBlock msg = std::make_shared<MsgGenerater>();
     spBasicBlock byte_to_bit = std::make_shared<ConvertByteBit>("byte_to_bit");
-    spBasicBlock frameencap = std::make_shared<FrameEncap>("header","1111100110101", 96);
     spBasicBlock bpsk_mod = std::make_shared<BPSK>("bpsk_mod");
 
     spBasicBlock bpsk_demod = std::make_shared<BPSKDemod>("bpsk_demod");
@@ -57,8 +54,8 @@ int main(int argc, char* argv[])
 
 
     topflow.Connect(msg,0,byte_to_bit,0);
-    topflow.Connect(byte_to_bit,0,frameencap,0);
-    topflow.Connect(frameencap,0,bpsk_mod,0);
+    topflow.Connect(byte_to_bit,0,bpsk_mod,0);
+//    topflow.Connect(frameencap,0,bpsk_mod,0);
     topflow.Connect(bpsk_mod,0,sinkapi,0);
 
     topflow.Connect(sourceapi,0,bpsk_demod,0);
