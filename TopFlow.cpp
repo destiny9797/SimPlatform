@@ -26,7 +26,12 @@ TopFlow::TopFlow()
 
 TopFlow::~TopFlow()
 {
-    ClearTmpfile("/Users/zhujiaying/github/SimPlatform/tmp/");
+    char* pathname = getcwd(NULL, 0);
+    if (pathname == NULL){
+        std::runtime_error("Buffer[AllocateBuffer]: Wrong path.");
+    }
+    std::string buffer_name = std::string(pathname) + "/../tmp/";
+    ClearTmpfile(buffer_name.c_str());
 //    std::cout << "~TopFLow()" << std::endl;
 }
 

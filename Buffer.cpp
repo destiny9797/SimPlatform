@@ -74,6 +74,7 @@ void Buffer::AllocateBuffer(int nitems, int sizeofitem)
         close(fd);
         throw std::runtime_error("Buffer[AllocateBuffer]: mmap 1 failed.");
     }
+
     //将后面一半unmap
     if (munmap((char*)firstcopy+size, size) == -1)
     {
