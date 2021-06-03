@@ -8,7 +8,7 @@
 #include "TopFlow.h"
 #include <iostream>
 
-#define NITEMS ( 8 * (1L<<10) ) //8M ，如果sizeofitem是4Bytes，则总共约32M一个文件
+#define NITEMS ( 16 * (1L<<10) ) //16k ，如果sizeofitem是4Bytes，则总共约64k一个文件
 
 BlkPort::BlkPort(spBasicBlock blk, int port)
     : _block(blk),
